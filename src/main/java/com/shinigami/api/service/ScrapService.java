@@ -1,7 +1,8 @@
 package com.shinigami.api.service;
 
+import com.shinigami.api.factory.ComicFactory;
 import com.shinigami.api.model.BrowseModel;
-import com.shinigami.api.model.TrendingModel;
+import com.shinigami.api.model.ComicModel;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,50 +23,83 @@ public class ScrapService {
                 .userAgent("Mozilla/5.0")
                 .get();
 
-        Elements elements = document.select("a.series-link");
 
-        List<String> all = new ArrayList<>();
+        List<ComicModel> all = scrapHome(document);
+        List<ComicModel> hotList = all.size() >= 8 ? all.stream().limit(8).toList() : all;
+        List<ComicModel> newsList = all.size() >= 15 ? all.stream().skip(8).limit(15).toList() : List.of();
 
-        for (Element element : elements) {
-            all.add(element.attr("abs:href"));
-        }
+        List<ComicModel> trendingList = scrapTrending(1);
 
-        List<String> hotList = all.size() >= 8 ? all.stream().limit(8).toList() : all;
-        List<String> newsList = all.size() >= 16 ? all.stream().skip(8).limit(16).toList() : List.of();
-//        List<String> udpateList = all.size() >= 16 ? all.stream().skip(8).limit(16).toList() : List.of();
-
-        return new BrowseModel(hotList, newsList, null);
+        return new BrowseModel(hotList, newsList, trendingList);
     }
 
-    public List<TrendingModel> scrapTrending(int page) throws IOException {
+    public List<ComicModel> scrapHome(Document document){
+
+        ComicFactory factory = new ComicFactory();
+
+        Elements comicElement = document.select("h5.series-title");
+        for (Element element : comicElement) {
+            factory.getTitleList().add(element.text());
+        }
+
+        Elements urlElement = document.select("a.series-link");
+        for (Element element : urlElement) {
+            factory.getUrlList().add(element.attr("abs:href"));
+        }
+
+        int minSize = Math.min(factory.getTitleList().size(), factory.getUrlList().size());
+
+        Elements imageElement = document.select("img.thumb-img");
+        for(Element element : imageElement){
+            String imgUrl = element.attr("abs:src");
+            factory.getCoverList().add(imgUrl);
+        }
+
+        Elements chapterElement = document.select("div.series-content");
+        for (int i = 0; i < chapterElement.size(); i++) {
+            log.info("chapter: {}" ,chapterElement.get(i).attr("a abs:href"));
+        }
+
+        Elements chapterNameElement = chapterElement.select("div.series-chapter-item").select("span.series-badge");
+        for (int i = 0; i < chapterNameElement.size(); i++) {
+            log.info("chapterName: {}", chapterNameElement.get(i).text());
+        }
+
+        List<ComicModel> comicList = new ArrayList<>();
+        for (int i = 0; i < minSize; i++) {
+            ComicModel comicModel = new ComicModel(
+                    factory.getTitleList().get(i),
+                    factory.getUrlList().get(i),
+                    factory.getCoverList().get(i),
+                    "",
+                    "",
+                    -1
+            );
+            comicList.add(comicModel);
+        }
+
+        return comicList;
+    }
+
+    public List<ComicModel> scrapTrending(int page) throws IOException {
         String url = String.format("https://shinigami.id/semua-series/page/%d/?m_orderby=trending", page);
         Document document = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0")
                 .get();
 
-        List<String> titleList = new ArrayList<>();
-        List<String> urlList = new ArrayList<>();
-        List<Float> ratingList = new ArrayList<>();
-        List<String> coverList = new ArrayList<>();
-        List<String> chapterList = new ArrayList<>();
-        List<String> chapterUrlList = new ArrayList<>();
+        ComicFactory factory = new ComicFactory();
 
         Elements comicElement = document.select("h3.h5").select("a");
         for (Element element : comicElement) {
-            titleList.add(element.text());
-            urlList.add(element.attr("abs:href"));
-
-            log.info("title: {}", element.text());
-            log.info("url: {}\n", element.attr("abs:href"));
+            factory.getTitleList().add(element.text());
+            factory.getUrlList().add(element.attr("abs:href"));
         }
 
-        int minSize = Math.min(titleList.size(), urlList.size());
+        int minSize = Math.min(factory.getTitleList().size(), factory.getUrlList().size());
 
         Elements ratingElement = document.select("span.score");
         for (Element element : ratingElement){
-            ratingList.add(Float.parseFloat(element.text()));
-
-            log.info("rating: {}", element.text());
+            factory.getRatingList().add(Float.parseFloat(element.text()));
         }
 
         Elements imageElement = document.select("img.img-responsive");
@@ -75,9 +109,7 @@ public class ScrapService {
                 continue;
             }
 
-            coverList.add(imgUrl);
-
-            log.info("image-url: {}", imgUrl);
+            factory.getCoverList().add(imgUrl);
         }
 
         Elements chapterElement = document.select("a.btn-link");
@@ -85,27 +117,24 @@ public class ScrapService {
         for (int i = 0; i < chapterElement.size(); i += 2) {
             Element element = chapterElement.get(i);
 
-            chapterList.add(element.text());
-            chapterUrlList.add(element.attr("abs:href"));
-
-            log.info("chapter: {}", element.text());
-            log.info("chapter-url: {}\n", element.attr("abs:href"));
+            factory.getChapterList().add(element.text());
+            factory.getChapterUrlList().add(element.attr("abs:href"));
         }
 
-        List<TrendingModel> trendingList = new ArrayList<>();
+        List<ComicModel> comicList = new ArrayList<>();
         for (int i = 0; i < minSize; i++) {
-            TrendingModel trendingModel = new TrendingModel(
-                    titleList.get(i),
-                    urlList.get(i),
-                    coverList.get(i),
-                    chapterList.get(i),
-                    chapterUrlList.get(i),
-                    ratingList.get(i)
+            ComicModel comicModel = new ComicModel(
+                    factory.getTitleList().get(i),
+                    factory.getUrlList().get(i),
+                    factory.getCoverList().get(i),
+                    factory.getChapterList().get(i),
+                    factory.getChapterUrlList().get(i),
+                    factory.getRatingList().get(i)
             );
-            trendingList.add(trendingModel);
+            comicList.add(comicModel);
         }
 
-        return trendingList;
+        return comicList;
     }
 
 }

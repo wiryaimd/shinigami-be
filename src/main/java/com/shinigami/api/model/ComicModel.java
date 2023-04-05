@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TrendingModel {
+public class ComicModel {
 
     private String title, url, cover;
     private String latestChapter, latestChapterUrl;

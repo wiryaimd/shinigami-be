@@ -11,6 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 public class BrowseModel {
 
-    private List<String> hot, news, update;
+    private List<ComicModel> hotList, newsList, trendingList;
 
 }
