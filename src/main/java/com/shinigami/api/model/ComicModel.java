@@ -13,4 +13,9 @@ public class ComicModel {
     private String latestChapter, latestChapterUrl;
     private float rating;
 
+    public ComicModel(String title, String url, String cover) {
+        this.title = title;
+        this.url = url;
+        this.cover = cover;
+    }
 }

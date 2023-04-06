@@ -1,7 +1,10 @@
 package com.shinigami.api.service;
 
+import com.shinigami.api.factory.ComicDetailFactory;
 import com.shinigami.api.factory.ComicFactory;
 import com.shinigami.api.model.BrowseModel;
+import com.shinigami.api.model.ChapterModel;
+import com.shinigami.api.model.ComicDetailModel;
 import com.shinigami.api.model.ComicModel;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -9,6 +12,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,14 +59,14 @@ public class ScrapService {
             factory.getCoverList().add(imgUrl);
         }
 
-        Elements chapterElement = document.select("div.series-content");
-        for (int i = 0; i < chapterElement.size(); i++) {
-            log.info("chapter: {}" ,chapterElement.get(i).attr("a abs:href"));
+        Elements chapterElement = document.select("div.series-content a");
+        for (int i = 0; i < chapterElement.size(); i += 2) {
+            factory.getChapterUrlList().add(chapterElement.get(i).attr("abs:href"));
         }
 
         Elements chapterNameElement = chapterElement.select("div.series-chapter-item").select("span.series-badge");
-        for (int i = 0; i < chapterNameElement.size(); i++) {
-            log.info("chapterName: {}", chapterNameElement.get(i).text());
+        for (int i = 0; i < chapterNameElement.size(); i += 2) {
+            factory.getChapterList().add(chapterNameElement.get(i).text());
         }
 
         List<ComicModel> comicList = new ArrayList<>();
@@ -71,8 +75,8 @@ public class ScrapService {
                     factory.getTitleList().get(i),
                     factory.getUrlList().get(i),
                     factory.getCoverList().get(i),
-                    "",
-                    "",
+                    factory.getChapterList().get(i),
+                    factory.getChapterUrlList().get(i),
                     -1
             );
             comicList.add(comicModel);
@@ -135,6 +139,71 @@ public class ScrapService {
         }
 
         return comicList;
+    }
+
+    public ComicDetailModel scrapDetail(String url) throws IOException {
+        Document document = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0")
+                .get();
+
+        ComicDetailFactory comicDetailFactory = new ComicDetailFactory();
+
+        StringBuilder synopsisSb = new StringBuilder();
+        Elements synopsisElement = document.select("div.summary__content p");
+        for (Element element : synopsisElement){
+            log.info("sinop: {}", element.text());
+            synopsisSb.append(element.text()).append("\n\n");
+        }
+
+        Elements detailElement = document.select("div.post-content div.post-content_item");
+        for (Element element : detailElement){
+            String name = element.select("div.summary-heading h5").text();
+            String value = element.select("div.summary-content").text();
+
+            log.info("name: {} = {}", name, value);
+
+            comicDetailFactory.getDetailList().add(new ComicDetailModel.Detail(name, value));
+        }
+;
+        String cleaned = url.endsWith("/") ? url : url + "/";
+
+        Document chapterDocument = Jsoup.connect(String.format("%sajax/chapters/", cleaned))
+                .userAgent("Mozilla/5.0")
+                .post();
+
+        Elements chapterElement = chapterDocument.select("li.wp-manga-chapter");
+        for (Element element : chapterElement){
+            String chapterCover = element.select("img.thumb").attr("abs:src");
+            String chapterUrl = element.select("div.chapter-link a").attr("abs:href");
+            String chapterTitle = element.select("p.chapter-manhwa-title").text();
+
+            log.info("img: {}", chapterCover);
+            log.info("chapUrl: {}", chapterUrl);
+            log.info("title: {}", chapterTitle);
+
+            comicDetailFactory.getChapterList().add(new ChapterModel(
+                    chapterTitle,
+                    chapterUrl,
+                    chapterCover
+            ));
+        }
+
+        Elements relatedElement = document.select("div.related-reading-img");
+        for (Element element : relatedElement){
+            String relatedTitle = element.select("a").attr("title");
+            String relatedUrl = element.select("a").attr("abs:href");
+            String relatedCover = element.select("img").attr("abs:data-src");
+
+            log.info("related title: {}", relatedTitle);
+            log.info("related url: {}", relatedUrl);
+            log.info("related img: {}", relatedCover);
+
+            comicDetailFactory.getRelatedList().add(new ComicModel(
+                    relatedTitle, relatedUrl, relatedCover
+            ));
+        }
+
+        return new ComicDetailModel(synopsisSb.toString(), comicDetailFactory.getDetailList(), comicDetailFactory.getChapterList(), comicDetailFactory.getRelatedList());
     }
 
 }
