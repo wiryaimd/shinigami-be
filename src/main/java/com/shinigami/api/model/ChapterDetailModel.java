@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChapterModel {
+public class ChapterDetailModel {
 
-    private String title, url, cover, releaseDate;
+    private List<String> imageList;
 
 }

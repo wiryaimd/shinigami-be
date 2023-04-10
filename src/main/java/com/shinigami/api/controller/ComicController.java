@@ -1,5 +1,6 @@
 package com.shinigami.api.controller;
 
+import com.shinigami.api.model.ChapterDetailModel;
 import com.shinigami.api.model.ComicDetailModel;
 import com.shinigami.api.service.ScrapService;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,12 @@ public class ComicController {
 
     @GetMapping("/comic")
     public ResponseEntity<ComicDetailModel> detail(@RequestParam(name = "url") String url) throws IOException {
-        return ResponseEntity.ok(scrapService.scrapDetail("https://shinigami.id/series/i-obtained-a-mythic-item"));
+        return ResponseEntity.ok(scrapService.scrapDetail(url));
+    }
+
+    @GetMapping("/chapter")
+    public ResponseEntity<ChapterDetailModel> chapterDetail(@RequestParam(name = "url") String url) throws IOException {
+        return ResponseEntity.ok(scrapService.scrapChapter(url));
     }
 
 }

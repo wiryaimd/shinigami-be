@@ -2,10 +2,7 @@ package com.shinigami.api.service;
 
 import com.shinigami.api.factory.ComicDetailFactory;
 import com.shinigami.api.factory.ComicFactory;
-import com.shinigami.api.model.BrowseModel;
-import com.shinigami.api.model.ChapterModel;
-import com.shinigami.api.model.ComicDetailModel;
-import com.shinigami.api.model.ComicModel;
+import com.shinigami.api.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -77,7 +74,7 @@ public class ScrapService {
                     factory.getCoverList().get(i),
                     factory.getChapterList().get(i),
                     factory.getChapterUrlList().get(i),
-                    -1
+                    0
             );
             comicList.add(comicModel);
         }
@@ -155,6 +152,8 @@ public class ScrapService {
             synopsisSb.append(element.text()).append("\n\n");
         }
 
+        comicDetailFactory.getDetailList().add(new ComicDetailModel.Detail("rating_num", document.select("div.post-rating div.post-total-rating span.score").text()));
+
         Elements detailElement = document.select("div.post-content div.post-content_item");
         for (Element element : detailElement){
             String name = element.select("div.summary-heading h5").text();
@@ -176,6 +175,7 @@ public class ScrapService {
             String chapterCover = element.select("img.thumb").attr("abs:src");
             String chapterUrl = element.select("div.chapter-link a").attr("abs:href");
             String chapterTitle = element.select("p.chapter-manhwa-title").text();
+            String releaseDate = element.select("span.chapter-release-date").text();
 
             log.info("img: {}", chapterCover);
             log.info("chapUrl: {}", chapterUrl);
@@ -184,7 +184,8 @@ public class ScrapService {
             comicDetailFactory.getChapterList().add(new ChapterModel(
                     chapterTitle,
                     chapterUrl,
-                    chapterCover
+                    chapterCover,
+                    releaseDate
             ));
         }
 
@@ -206,4 +207,20 @@ public class ScrapService {
         return new ComicDetailModel(synopsisSb.toString(), comicDetailFactory.getDetailList(), comicDetailFactory.getChapterList(), comicDetailFactory.getRelatedList());
     }
 
+    public ChapterDetailModel scrapChapter(String url) throws IOException {
+        Document document = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0")
+                .get();
+
+        List<String> imgList = new ArrayList<>();
+        Elements imgElement = document.select("div.page-break img");
+        for(Element element : imgElement){
+            String img = element.attr("abs:data-src");
+            log.info("img: {}", img);
+
+            imgList.add(img);
+        }
+
+        return new ChapterDetailModel(imgList);
+    }
 }
