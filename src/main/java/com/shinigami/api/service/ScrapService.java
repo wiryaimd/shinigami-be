@@ -19,6 +19,10 @@ import java.util.List;
 @Slf4j
 public class ScrapService {
 
+    public static final String TRENDING = "trending";
+    public static final String LATEST = "latest";
+    public static final String AZ = "alphabet";
+
     public BrowseModel scrapBrowse() throws IOException {
         Document document = Jsoup.connect("https://shinigami.id/")
                 .userAgent("Mozilla/5.0")
@@ -29,7 +33,7 @@ public class ScrapService {
         List<ComicModel> hotList = all.size() >= 8 ? all.stream().limit(8).toList() : all;
         List<ComicModel> newsList = all.size() >= 15 ? all.stream().skip(8).limit(15).toList() : List.of();
 
-        List<ComicModel> trendingList = scrapTrending(1);
+        List<ComicModel> trendingList = scrapBy(TRENDING, 1);
 
         return new BrowseModel(hotList, newsList, trendingList);
     }
@@ -82,8 +86,8 @@ public class ScrapService {
         return comicList;
     }
 
-    public List<ComicModel> scrapTrending(int page) throws IOException {
-        String url = String.format("https://shinigami.id/semua-series/page/%d/?m_orderby=trending", page);
+    public List<ComicModel> scrapBy(String by, int page) throws IOException {
+        String url = String.format("https://shinigami.id/semua-series/page/%d/?m_orderby=%s", page, by);
         Document document = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0")
                 .get();
