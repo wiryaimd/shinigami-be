@@ -33,7 +33,7 @@ public class ScrapService {
         List<ComicModel> hotList = all.size() >= 8 ? all.stream().limit(8).toList() : all;
         List<ComicModel> newsList = all.size() >= 15 ? all.stream().skip(8).limit(15).toList() : List.of();
 
-        List<ComicModel> trendingList = scrapBy(TRENDING, 1);
+        List<ComicModel> trendingList = scrapBy(TRENDING, 1, false);
 
         return new BrowseModel(hotList, newsList, trendingList);
     }
@@ -86,7 +86,9 @@ public class ScrapService {
         return comicList;
     }
 
-    public List<ComicModel> scrapBy(String by, int page) throws IOException {
+    private int count = 0;
+
+    public List<ComicModel> scrapBy(String by, int page, boolean isMultiple) throws IOException {
         String url = String.format("https://shinigami.id/semua-series/page/%d/?m_orderby=%s", page, by);
         Document document = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0")
@@ -127,6 +129,7 @@ public class ScrapService {
         }
 
         List<ComicModel> comicList = new ArrayList<>();
+
         for (int i = 0; i < minSize; i++) {
             ComicModel comicModel = new ComicModel(
                     factory.getTitleList().get(i),
@@ -137,6 +140,14 @@ public class ScrapService {
                     factory.getRatingList().get(i)
             );
             comicList.add(comicModel);
+        }
+
+        if (isMultiple && count < 1){
+            count += 1;
+
+            comicList.addAll(scrapBy(by, page + 1, isMultiple));
+        }else{
+            count = 0;
         }
 
         return comicList;

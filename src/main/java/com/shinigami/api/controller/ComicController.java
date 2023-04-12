@@ -40,18 +40,19 @@ public class ComicController {
     }
 
     @GetMapping("/filter/trending")
-    public ResponseEntity<List<ComicModel>> trending(@RequestParam(name = "page", defaultValue = "1") int page) throws IOException {
-        return ResponseEntity.ok(scrapService.scrapBy(ScrapService.TRENDING, page));
+    public ResponseEntity<List<ComicModel>> trending(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "multiple", required = false) boolean isMultiple) throws IOException {
+        return ResponseEntity.ok(scrapService.scrapBy(ScrapService.TRENDING, page, isMultiple));
     }
 
     @GetMapping("/filter/latest")
-    public ResponseEntity<List<ComicModel>> latest(@RequestParam(name = "page", defaultValue = "1") int page) throws IOException {
-        return ResponseEntity.ok(scrapService.scrapBy(ScrapService.LATEST, page));
+    public ResponseEntity<List<ComicModel>> latest(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "multiple", required = false) boolean isMultiple) throws IOException {
+        log.info("is multiple {}", isMultiple);
+        return ResponseEntity.ok(scrapService.scrapBy(ScrapService.LATEST, page, isMultiple));
     }
 
     @GetMapping("/filter/az")
-    public ResponseEntity<List<ComicModel>> az(@RequestParam(name = "page", defaultValue = "1") int page) throws IOException {
-        return ResponseEntity.ok(scrapService.scrapBy(ScrapService.AZ, page));
+    public ResponseEntity<List<ComicModel>> az(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "multiple", required = false) boolean isMultiple) throws IOException {
+        return ResponseEntity.ok(scrapService.scrapBy(ScrapService.AZ, page, isMultiple));
     }
 
 }
