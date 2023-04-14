@@ -90,6 +90,10 @@ public class ScrapService {
 
     public List<ComicModel> scrapBy(String by, int page, boolean isMultiple) throws IOException {
         String url = String.format("https://shinigami.id/semua-series/page/%d/?m_orderby=%s", page, by);
+        return scrapBy(url, by, page, isMultiple);
+    }
+
+    public List<ComicModel> scrapBy(String url, String by, int page, boolean isMultiple) throws IOException {
         Document document = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0")
                 .get();
@@ -119,7 +123,7 @@ public class ScrapService {
             factory.getCoverList().add(imgUrl);
         }
 
-        Elements chapterElement = document.select("a.btn-link");
+        Elements chapterElement = document.select("span.chapter a.btn-link");
 
         for (int i = 0; i < chapterElement.size(); i += 2) {
             Element element = chapterElement.get(i);
@@ -163,7 +167,6 @@ public class ScrapService {
         StringBuilder synopsisSb = new StringBuilder();
         Elements synopsisElement = document.select("div.summary__content p");
         for (Element element : synopsisElement){
-            log.info("sinop: {}", element.text());
             synopsisSb.append(element.text()).append("\n\n");
         }
 
@@ -173,8 +176,6 @@ public class ScrapService {
         for (Element element : detailElement){
             String name = element.select("div.summary-heading h5").text();
             String value = element.select("div.summary-content").text();
-
-            log.info("name: {} = {}", name, value);
 
             comicDetailFactory.getDetailList().add(new ComicDetailModel.Detail(name, value));
         }
@@ -192,10 +193,6 @@ public class ScrapService {
             String chapterTitle = element.select("p.chapter-manhwa-title").text();
             String releaseDate = element.select("span.chapter-release-date").text();
 
-            log.info("img: {}", chapterCover);
-            log.info("chapUrl: {}", chapterUrl);
-            log.info("title: {}", chapterTitle);
-
             comicDetailFactory.getChapterList().add(new ChapterModel(
                     chapterTitle,
                     chapterUrl,
@@ -209,10 +206,6 @@ public class ScrapService {
             String relatedTitle = element.select("a").attr("title");
             String relatedUrl = element.select("a").attr("abs:href");
             String relatedCover = element.select("img").attr("abs:data-src");
-
-            log.info("related title: {}", relatedTitle);
-            log.info("related url: {}", relatedUrl);
-            log.info("related img: {}", relatedCover);
 
             comicDetailFactory.getRelatedList().add(new ComicModel(
                     relatedTitle, relatedUrl, relatedCover
@@ -231,11 +224,61 @@ public class ScrapService {
         Elements imgElement = document.select("div.page-break img");
         for(Element element : imgElement){
             String img = element.attr("abs:data-src");
-            log.info("img: {}", img);
 
             imgList.add(img);
         }
 
         return new ChapterDetailModel(imgList);
+    }
+
+    public List<ComicModel> scrapSearch(String keyword, int page) throws IOException {
+        String url = String.format("https://shinigami.id/page/%d/?s=%s&post_type=wp-manga", page, keyword);
+        Document document = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0")
+                .get();
+
+        ComicFactory factory = new ComicFactory();
+
+        Elements comicElement = document.select("h3.h4").select("a");
+        for (Element element : comicElement) {
+            factory.getTitleList().add(element.text());
+            factory.getUrlList().add(element.attr("abs:href"));
+        }
+
+        int minSize = Math.min(factory.getTitleList().size(), factory.getUrlList().size());
+
+        Elements ratingElement = document.select("span.score.total_votes");
+        for (Element element : ratingElement){
+            factory.getRatingList().add(Float.parseFloat(element.text()));
+        }
+
+        Elements imageElement = document.select("div.tab-thumb.c-image-hover img");
+        for(Element element : imageElement){
+            String imgUrl = element.attr("abs:data-src");
+            factory.getCoverList().add(imgUrl);
+        }
+
+        Elements chapterElement = document.select("span.font-meta.chapter a");
+
+        for (Element element : chapterElement) {
+            factory.getChapterList().add(element.text());
+            factory.getChapterUrlList().add(element.attr("abs:href"));
+        }
+
+        List<ComicModel> comicList = new ArrayList<>();
+
+        for (int i = 0; i < minSize; i++) {
+            ComicModel comicModel = new ComicModel(
+                    factory.getTitleList().get(i),
+                    factory.getUrlList().get(i),
+                    factory.getCoverList().get(i),
+                    factory.getChapterList().get(i),
+                    factory.getChapterUrlList().get(i),
+                    factory.getRatingList().get(i)
+            );
+            comicList.add(comicModel);
+        }
+
+        return comicList;
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -37,6 +38,26 @@ public class ComicController {
     @GetMapping("/chapter")
     public ResponseEntity<ChapterDetailModel> chapterDetail(@RequestParam(name = "url") String url) throws IOException {
         return ResponseEntity.ok(scrapService.scrapChapter(url));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ComicModel>> search(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "keyword") String keyword) throws IOException {
+        if (keyword == null || keyword.trim().isEmpty()){
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+        return ResponseEntity.ok(scrapService.scrapSearch(keyword, page));
+    }
+
+    @GetMapping("/projects")
+    public ResponseEntity<List<ComicModel>> projects(@RequestParam(name = "page", defaultValue = "1") int page) throws IOException {
+        String url = String.format("https://shinigami.id/project/page/%d", page);
+        return ResponseEntity.ok(scrapService.scrapBy(url, "", page, false));
+    }
+
+    @GetMapping("/mirror")
+    public ResponseEntity<List<ComicModel>> mirror(@RequestParam(name = "page", defaultValue = "1") int page) throws IOException {
+        String url = String.format("https://shinigami.id/mirror/page/%d", page);
+        return ResponseEntity.ok(scrapService.scrapBy(url, "", page, false));
     }
 
     @GetMapping("/filter/trending")
