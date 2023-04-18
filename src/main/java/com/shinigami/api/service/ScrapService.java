@@ -1,15 +1,16 @@
 package com.shinigami.api.service;
 
+import com.shinigami.api.dto.FilterDto;
 import com.shinigami.api.factory.ComicDetailFactory;
 import com.shinigami.api.factory.ComicFactory;
 import com.shinigami.api.model.*;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,6 +23,9 @@ public class ScrapService {
     public static final String TRENDING = "trending";
     public static final String LATEST = "latest";
     public static final String AZ = "alphabet";
+    public static final String RATING = "rating";
+    public static final String VIEWS = "views";
+    public static final String NEW = "new-manga";
 
     public BrowseModel scrapBrowse() throws IOException {
         Document document = Jsoup.connect("https://shinigami.id/")
@@ -87,6 +91,8 @@ public class ScrapService {
     }
 
     private int count = 0;
+    private int countFilter = 0;
+
 
     public List<ComicModel> scrapBy(String by, int page, boolean isMultiple) throws IOException {
         String url = String.format("https://shinigami.id/semua-series/page/%d/?m_orderby=%s", page, by);
@@ -94,9 +100,15 @@ public class ScrapService {
     }
 
     public List<ComicModel> scrapBy(String url, String by, int page, boolean isMultiple) throws IOException {
-        Document document = Jsoup.connect(url)
-                .userAgent("Mozilla/5.0")
-                .get();
+        Document document;
+        try {
+            document = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0")
+                    .get();
+        }catch (HttpStatusException e){
+            e.printStackTrace();
+            return List.of();
+        }
 
         ComicFactory factory = new ComicFactory();
 
@@ -135,12 +147,20 @@ public class ScrapService {
         List<ComicModel> comicList = new ArrayList<>();
 
         for (int i = 0; i < minSize; i++) {
+            String chapter = "";
+            String chapterUrl = "";
+
+            if (i < factory.getChapterList().size()) {
+                chapter = factory.getChapterList().get(i);
+                chapterUrl = factory.getChapterUrlList().get(i);
+            }
+
             ComicModel comicModel = new ComicModel(
                     factory.getTitleList().get(i),
                     factory.getUrlList().get(i),
                     factory.getCoverList().get(i),
-                    factory.getChapterList().get(i),
-                    factory.getChapterUrlList().get(i),
+                    chapter,
+                    chapterUrl,
                     factory.getRatingList().get(i)
             );
             comicList.add(comicModel);
@@ -233,9 +253,16 @@ public class ScrapService {
 
     public List<ComicModel> scrapSearch(String keyword, int page) throws IOException {
         String url = String.format("https://shinigami.id/page/%d/?s=%s&post_type=wp-manga", page, keyword);
-        Document document = Jsoup.connect(url)
-                .userAgent("Mozilla/5.0")
-                .get();
+
+        Document document;
+        try {
+            document = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0")
+                    .get();
+        }catch (HttpStatusException e){
+            e.printStackTrace();
+            return List.of();
+        }
 
         ComicFactory factory = new ComicFactory();
 
@@ -277,6 +304,73 @@ public class ScrapService {
                     factory.getRatingList().get(i)
             );
             comicList.add(comicModel);
+        }
+
+        return comicList;
+    }
+
+    public List<ComicModel> scrapFilter(FilterDto filterDto, int page) throws IOException {
+        String url = String.format("https://shinigami.id/genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page, filterDto.getSortBy());
+
+        Document document;
+        try {
+            document = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0")
+                    .get();
+        }catch (HttpStatusException e){
+            e.printStackTrace();
+            return List.of();
+        }
+
+        ComicFactory factory = new ComicFactory();
+
+        Elements comicElement = document.select("h3.h5").select("a");
+        for (Element element : comicElement) {
+            factory.getTitleList().add(element.text());
+            factory.getUrlList().add(element.attr("abs:href"));
+        }
+
+        int minSize = Math.min(factory.getTitleList().size(), factory.getUrlList().size());
+
+        Elements ratingElement = document.select("span.score");
+        for (Element element : ratingElement){
+            factory.getRatingList().add(Float.parseFloat(element.text()));
+        }
+
+        Elements imageElement = document.select("div.item-thumb.c-image-hover img");
+        for(Element element : imageElement){
+            String imgUrl = element.attr("abs:data-src");
+            factory.getCoverList().add(imgUrl);
+        }
+
+        Elements chapterElement = document.select("span.chapter a.btn-link");
+
+        for (int i = 0; i < chapterElement.size(); i += 2) {
+            Element element = chapterElement.get(i);
+
+            factory.getChapterList().add(element.text());
+            factory.getChapterUrlList().add(element.attr("abs:href"));
+        }
+
+        List<ComicModel> comicList = new ArrayList<>();
+
+        for (int i = 0; i < minSize; i++) {
+            ComicModel comicModel = new ComicModel(
+                    factory.getTitleList().get(i),
+                    factory.getUrlList().get(i),
+                    factory.getCoverList().get(i),
+                    factory.getChapterList().get(i),
+                    factory.getChapterUrlList().get(i),
+                    factory.getRatingList().get(i)
+            );
+            comicList.add(comicModel);
+        }
+
+        if (countFilter < 1){
+            countFilter += 1;
+            comicList.addAll(scrapFilter(filterDto,page + 1));
+        }else{
+            countFilter = 0;
         }
 
         return comicList;

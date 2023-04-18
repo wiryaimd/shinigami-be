@@ -1,5 +1,6 @@
 package com.shinigami.api.controller;
 
+import com.shinigami.api.dto.FilterDto;
 import com.shinigami.api.model.BrowseModel;
 import com.shinigami.api.model.ChapterDetailModel;
 import com.shinigami.api.model.ComicDetailModel;
@@ -8,10 +9,7 @@ import com.shinigami.api.service.ScrapService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,6 +58,11 @@ public class ComicController {
         return ResponseEntity.ok(scrapService.scrapBy(url, "", page, false));
     }
 
+    @PostMapping("/filter")
+    public ResponseEntity<List<ComicModel>> filter(@RequestBody FilterDto filterDto, @RequestParam(name = "page", defaultValue = "1") int page) throws IOException {
+        return ResponseEntity.ok(scrapService.scrapFilter(filterDto, page));
+    }
+
     @GetMapping("/filter/trending")
     public ResponseEntity<List<ComicModel>> trending(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "multiple", required = false) boolean isMultiple) throws IOException {
         return ResponseEntity.ok(scrapService.scrapBy(ScrapService.TRENDING, page, isMultiple));
@@ -74,6 +77,21 @@ public class ComicController {
     @GetMapping("/filter/az")
     public ResponseEntity<List<ComicModel>> az(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "multiple", required = false) boolean isMultiple) throws IOException {
         return ResponseEntity.ok(scrapService.scrapBy(ScrapService.AZ, page, isMultiple));
+    }
+
+    @GetMapping("/filter/rating")
+    public ResponseEntity<List<ComicModel>> rating(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "multiple", required = false) boolean isMultiple) throws IOException {
+        return ResponseEntity.ok(scrapService.scrapBy(ScrapService.RATING, page, isMultiple));
+    }
+
+    @GetMapping("/filter/views")
+    public ResponseEntity<List<ComicModel>> views(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "multiple", required = false) boolean isMultiple) throws IOException {
+        return ResponseEntity.ok(scrapService.scrapBy(ScrapService.VIEWS, page, isMultiple));
+    }
+
+    @GetMapping("/filter/new")
+    public ResponseEntity<List<ComicModel>> newManga(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "multiple", required = false) boolean isMultiple) throws IOException {
+        return ResponseEntity.ok(scrapService.scrapBy(ScrapService.NEW, page, isMultiple));
     }
 
 }
