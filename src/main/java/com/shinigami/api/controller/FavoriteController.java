@@ -35,4 +35,10 @@ public class FavoriteController { // for favorite chapter
         return ResponseEntity.ok(favoriteChapterService.byId(userId));
     }
 
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteFavorite(@PathVariable("userId") String userId, @RequestParam("comic") String comicUrl){
+        favoriteChapterService.remove(userId, comicUrl);
+        return ResponseEntity.ok(null);
+    }
+
 }

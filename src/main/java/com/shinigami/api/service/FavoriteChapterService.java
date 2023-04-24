@@ -52,4 +52,19 @@ public class FavoriteChapterService {
         }
         return userModel.getFavoriteChapterList();
     }
+
+    public void remove(String userId, String comicUrl) {
+        UserModel userModel = userRepository.findByUserId(userId).orElse(null);
+        if (userModel == null){
+            return;
+        }
+
+        for (int i = 0; i < userModel.getFavoriteChapterList().size(); i++) {
+            FavoriteChapterModel favoriteChapterModel = userModel.getFavoriteChapterList().get(i);
+            log.info("url: " + favoriteChapterModel.getTitle());
+            if (favoriteChapterModel.getUrl().equalsIgnoreCase(comicUrl)){
+                favoriteChapterRepository.delete(favoriteChapterModel);
+            }
+        }
+    }
 }

@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.function.Consumer;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -15,6 +17,10 @@ public class UserService {
     private UserRepository userRepository;
 
     public void saveUser(UserDto userDto){
+        if(userRepository.findByUserId(userDto.getUserId()).isPresent()){
+            return;
+        }
+
         UserModel userModel = new UserModel(
                 userDto.getUserId(),
                 userDto.getEmail(),
