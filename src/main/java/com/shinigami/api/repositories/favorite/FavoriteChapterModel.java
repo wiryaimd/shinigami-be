@@ -1,4 +1,4 @@
-package com.shinigami.api.model.favorite;
+package com.shinigami.api.repositories.favorite;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.shinigami.api.model.UserModel;

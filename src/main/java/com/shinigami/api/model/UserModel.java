@@ -1,7 +1,7 @@
 package com.shinigami.api.model;
 
-import com.shinigami.api.model.favorite.FavoriteChapterModel;
-import com.shinigami.api.model.favorite.FavoriteComicModel;
+import com.shinigami.api.repositories.favorite.FavoriteChapterModel;
+import com.shinigami.api.repositories.favorite.FavoriteComicModel;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

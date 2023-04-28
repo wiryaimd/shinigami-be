@@ -2,18 +2,14 @@ package com.shinigami.api.service;
 
 import com.shinigami.api.dto.FavoriteChapterDto;
 import com.shinigami.api.model.UserModel;
-import com.shinigami.api.model.favorite.FavoriteChapterModel;
-import com.shinigami.api.model.favorite.FavoriteComicModel;
+import com.shinigami.api.repositories.favorite.FavoriteChapterModel;
 import com.shinigami.api.repositories.FavoriteChapterRepository;
-import com.shinigami.api.repositories.FavoriteComicRepository;
 import com.shinigami.api.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 @Service
 @AllArgsConstructor

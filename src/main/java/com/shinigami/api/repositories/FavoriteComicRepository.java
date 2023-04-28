@@ -1,6 +1,6 @@
 package com.shinigami.api.repositories;
 
-import com.shinigami.api.model.favorite.FavoriteComicModel;
+import com.shinigami.api.repositories.favorite.FavoriteComicModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

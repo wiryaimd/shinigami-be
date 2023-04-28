@@ -1,0 +1,25 @@
+GET /api/browse -> halaman utama
+
+GET /api/comics?url=<url> -> detail komik
+
+GET /api/chapter?url=<url> -> data chapter
+
+GET /api/search?keyword=<url> -> search komik
+
+GET /api/projects -> list komik project
+
+GET /api/mirror -> list komik mirror
+
+POST /api/filter?page=0 -> filter komik
+
+GET /api/filter/trending?page=0 -> filter trending
+
+GET /api/filter/latest?page=0 -> filter latest
+
+GET /api/filter/alphabet?page=0 -> filter alphabet
+
+GET /api/filter/rating?page=0 -> filter rating
+
+GET /api/filter/viwes?page=0 -> filter views
+
+GET /api/filter/new?page=0 -> filter new
