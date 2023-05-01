@@ -1,3 +1,9 @@
+/*
+ * Developed by Wiryaimd
+ * Copyright (c) 2023 Shinigami ID
+ * All rights reserved.
+ */
+
 package com.shinigami.api.service;
 
 import com.shinigami.api.dto.FavoriteComicDto;

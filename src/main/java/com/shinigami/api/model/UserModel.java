@@ -1,3 +1,9 @@
+/*
+ * Developed by Wiryaimd
+ * Copyright (c) 2023 Shinigami ID
+ * All rights reserved.
+ */
+
 package com.shinigami.api.model;
 
 import com.shinigami.api.repositories.favorite.FavoriteChapterModel;
@@ -7,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -23,6 +30,10 @@ public class UserModel {
     private String userId;
     private String email;
     private boolean isPremium;
+    private LocalDateTime premiumDate;
+
+    // val: 30, 90, 180, 360 (day)
+    private int premiumDay = -1;
 
     @OneToMany(mappedBy = "userModel")
     private List<FavoriteComicModel> favoriteComicList;

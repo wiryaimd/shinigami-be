@@ -1,3 +1,9 @@
+/*
+ * Developed by Wiryaimd
+ * Copyright (c) 2023 Shinigami ID
+ * All rights reserved.
+ */
+
 package com.shinigami.api.controller;
 
 import com.shinigami.api.dto.UserDto;
@@ -17,17 +23,22 @@ public class UserController {
     private UserService userService;
 
     @PostMapping()
-    public ResponseEntity<Void> saveUser(@RequestBody UserDto userDto){
-        userService.saveUser(userDto);
-        return ResponseEntity.ok(null);
+    public ResponseEntity<UserDto> saveUser(@RequestBody UserDto userDto){
+        return ResponseEntity.ok(userService.saveUser(userDto));
     }
 
     @GetMapping("premium/{email}")
-    public ResponseEntity<Void> updateUser(@PathVariable String email, @RequestParam("auth") String auth){
-        if (!auth.equals("auth_wiryaimd_8ce117da")){
+    public ResponseEntity<Void> updateUser(@PathVariable String email, @RequestParam int day, @RequestParam("auth") String auth){
+        if (!auth.equals("users_wiryaimd_8ce117da")){
             return ResponseEntity.notFound().build();
         }
-        userService.setPremium(email);
+        userService.setPremium(email, day);
+        return ResponseEntity.ok(null);
+    }
+
+    @GetMapping("premium/check/{email}")
+    public ResponseEntity<Void> checkPremium(@PathVariable String email){
+        userService.checkPremium(email);
         return ResponseEntity.ok(null);
     }
 
