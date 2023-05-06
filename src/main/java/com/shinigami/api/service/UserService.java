@@ -51,10 +51,10 @@ public class UserService {
         );
     }
 
-    public void checkPremium(String email){
-        UserModel userModel = userRepository.findByEmail(email).orElseGet(null);
+    public UserDto checkPremium(String email){
+        UserModel userModel = userRepository.findByEmail(email).orElse(null);
         if (userModel == null){
-            return;
+            return null;
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -63,20 +63,23 @@ public class UserService {
         log.info("user: {} {} checked ---- {}", userModel.getEmail(), userModel.isPremium(), time);
 
         if (!userModel.isPremium()){
-            return;
+            return new UserDto(userModel.getUserId(), userModel.getEmail(), userModel.isPremium(), userModel.getPremiumDay(), userModel.getPremiumDate());
         }
 
-        boolean isExpired = userModel.getPremiumDate().plusDays(userModel.getPremiumDay()).isAfter(now);
+        boolean isExpired = userModel.getPremiumDate().plusDays(userModel.getPremiumDay()).isBefore(now);
 
+        log.info("isExpired: " + isExpired);
         if (isExpired){
             userModel.setPremium(false);
             userModel.setPremiumDate(null);
             userRepository.save(userModel);
         }
+
+        return new UserDto(userModel.getUserId(), userModel.getEmail(), userModel.isPremium(), userModel.getPremiumDay(), userModel.getPremiumDate());
     }
 
     public void setPremium(String email, int day) {
-        UserModel userModel = userRepository.findByEmail(email).orElseGet(null);
+        UserModel userModel = userRepository.findByEmail(email).orElse(null);
         if (userModel == null){
             return;
         }

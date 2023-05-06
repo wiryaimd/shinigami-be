@@ -48,7 +48,7 @@ public class FavoriteChapterService {
     }
 
     public List<FavoriteChapterModel> byId(String userId) {
-        UserModel userModel = userRepository.findByUserId(userId).orElseGet(null);
+        UserModel userModel = userRepository.findByUserId(userId).orElse(null);
         if (userModel == null){
             return List.of();
         }

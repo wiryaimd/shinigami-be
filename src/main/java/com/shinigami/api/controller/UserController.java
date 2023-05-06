@@ -37,9 +37,8 @@ public class UserController {
     }
 
     @GetMapping("premium/check/{email}")
-    public ResponseEntity<Void> checkPremium(@PathVariable String email){
-        userService.checkPremium(email);
-        return ResponseEntity.ok(null);
+    public ResponseEntity<UserDto> checkPremium(@PathVariable String email){
+        return ResponseEntity.ok(userService.checkPremium(email));
     }
 
 }
