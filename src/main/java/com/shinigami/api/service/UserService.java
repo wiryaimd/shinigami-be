@@ -78,16 +78,20 @@ public class UserService {
         return new UserDto(userModel.getUserId(), userModel.getEmail(), userModel.isPremium(), userModel.getPremiumDay(), userModel.getPremiumDate());
     }
 
-    public void setPremium(String email, int day) {
+    public UserModel setPremium(String email, int day) {
         UserModel userModel = userRepository.findByEmail(email).orElse(null);
         if (userModel == null){
-            return;
+            return null;
         }
 
         userModel.setPremium(true);
         userModel.setPremiumDate(LocalDateTime.now());
         userModel.setPremiumDay(day);
 
-        userRepository.save(userModel);
+        return userRepository.save(userModel);
+    }
+
+    public UserModel checkUser(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 }
