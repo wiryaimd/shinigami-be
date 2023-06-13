@@ -6,6 +6,7 @@
 
 package com.shinigami.api.controller;
 
+import com.shinigami.api.dto.HistoryDto;
 import com.shinigami.api.dto.PremiumDto;
 import com.shinigami.api.dto.UserDto;
 import com.shinigami.api.model.UserModel;
@@ -20,6 +21,7 @@ import org.springframework.web.context.support.HttpRequestHandlerServlet;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -76,6 +78,22 @@ public class UserController {
     @GetMapping("/premium/check/{email}")
     public ResponseEntity<UserDto> checkPremium(@PathVariable String email){
         return ResponseEntity.ok(userService.checkPremium(email));
+    }
+
+    @PostMapping("/history/{userId}")
+    public ResponseEntity<Void> saveHistory(@RequestBody HistoryDto historyDto, @PathVariable("userId") String userId) throws Throwable {
+        userService.saveHistory(userId, historyDto);
+        return ResponseEntity.ok(null);
+    }
+
+    @GetMapping("/export/premium")
+    public ResponseEntity<byte[]> exportPremium(HttpServletRequest request){
+        if (request.getHeader("auth").equals("jaoganmanaluwh")){
+            return ResponseEntity.status(404).build();
+        }
+        return ResponseEntity.status(200)
+                .header("Content-Disposition", "attachment; filename=\"shinigami_premium.txt\"") // berisi attachment; untuk menandakan bahwa data response ini harus dianggap sesuatu yang harus di unduh oleh browser
+                .body(userService.exportPremium());
     }
 
 }

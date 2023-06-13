@@ -6,8 +6,6 @@
 
 package com.shinigami.api.model;
 
-import com.shinigami.api.repositories.favorite.FavoriteChapterModel;
-import com.shinigami.api.repositories.favorite.FavoriteComicModel;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,6 +38,12 @@ public class UserModel {
 
     @OneToMany(mappedBy = "userModel")
     private List<FavoriteChapterModel> favoriteChapterList;
+
+    @OneToMany(mappedBy = "userModel")
+    private List<ComicHistoryModel> comicHistoryList;
+
+    @OneToMany(mappedBy = "userModel")
+    private List<ChapterHistoryModel> chapterHistoryList;
 
     public UserModel(String userId, String email, boolean isPremium) {
         this.userId = userId;

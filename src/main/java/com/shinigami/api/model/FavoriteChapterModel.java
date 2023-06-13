@@ -4,7 +4,7 @@
  * All rights reserved.
  */
 
-package com.shinigami.api.repositories.favorite;
+package com.shinigami.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.shinigami.api.model.UserModel;

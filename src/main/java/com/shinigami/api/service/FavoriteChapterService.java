@@ -8,7 +8,7 @@ package com.shinigami.api.service;
 
 import com.shinigami.api.dto.FavoriteChapterDto;
 import com.shinigami.api.model.UserModel;
-import com.shinigami.api.repositories.favorite.FavoriteChapterModel;
+import com.shinigami.api.model.FavoriteChapterModel;
 import com.shinigami.api.repositories.FavoriteChapterRepository;
 import com.shinigami.api.repositories.UserRepository;
 import lombok.AllArgsConstructor;

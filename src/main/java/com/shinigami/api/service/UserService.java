@@ -6,15 +6,23 @@
 
 package com.shinigami.api.service;
 
+import com.shinigami.api.dto.HistoryDto;
 import com.shinigami.api.dto.UserDto;
+import com.shinigami.api.exception.ElementNotFoundException;
+import com.shinigami.api.model.ChapterHistoryModel;
+import com.shinigami.api.model.ComicHistoryModel;
 import com.shinigami.api.model.UserModel;
+import com.shinigami.api.repositories.ChapterHistoryRepository;
+import com.shinigami.api.repositories.ComicHistoryRepository;
 import com.shinigami.api.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.function.Consumer;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 @Service
 @AllArgsConstructor
@@ -22,6 +30,8 @@ import java.util.function.Consumer;
 public class UserService {
 
     private UserRepository userRepository;
+    private ComicHistoryRepository comicHistoryRepository;
+    private ChapterHistoryRepository chapterHistoryRepository;
 
     public UserDto saveUser(UserDto userDto){
         UserModel userExist = userRepository.findByUserId(userDto.getUserId()).orElse(null);
@@ -91,7 +101,81 @@ public class UserService {
         return userRepository.save(userModel);
     }
 
+    public void saveHistory(String userId, HistoryDto historyDto) throws Throwable {
+        UserModel userModel = userRepository.findByUserId(userId).orElseThrow(new Supplier<Throwable>() {
+            @Override
+            public Throwable get() {
+                return new ElementNotFoundException("UserId tidak ditemukan");
+            }
+        });
+
+        ComicHistoryModel comicHistoryModel = comicHistoryRepository.findByComicUrl(historyDto.comicUrl()).orElse(new ComicHistoryModel(historyDto.comicUrl(), userModel));
+        comicHistoryRepository.save(comicHistoryModel);
+
+        ChapterHistoryModel chapterHistoryModel = new ChapterHistoryModel(
+                historyDto.chapterTitle(),
+                historyDto.chapterUrl(),
+                comicHistoryModel,
+                userModel
+        );
+        chapterHistoryRepository.save(chapterHistoryModel);
+//
+//        for (int i = 0; i < userModel.getComicHistoryList().size(); i++) {
+//            ComicHistoryModel comicHistoryModel = userModel.getComicHistoryList().get(i);
+//            if (comicHistoryModel.getComicUrl().equalsIgnoreCase(historyDto.comicUrl())){
+//                ChapterHistoryModel chapterHistoryModel = new ChapterHistoryModel(
+//                        historyDto.chapterTitle(),
+//                        historyDto.chapterUrl(),
+//                        comicHistoryModel
+//                );
+//
+//                isExist = true;
+//                chapterHistoryRepository.save(chapterHistoryModel);
+//
+//                log.info("history save");
+//                break;
+//            }
+//        }
+//
+//        if (!isExist){
+//            log.info("comic history n exist");
+//
+//            ComicHistoryModel comicHistoryModel = new ComicHistoryModel(
+//                    historyDto.comicUrl(),
+//                    userModel
+//            );
+
+
+//        }
+
+        userRepository.save(userModel);
+        log.info("save history check");
+    }
+
     public UserModel checkUser(String email) {
         return userRepository.findByEmail(email).orElse(null);
+    }
+
+    public byte[] exportPremium() {
+        List<UserModel> userList = userRepository.findAll().stream().filter(new Predicate<UserModel>() {
+            @Override
+            public boolean test(UserModel userModel) {
+                return userModel.isPremium();
+            }
+        }).toList();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("USER ID;EMAIL;PREMIUM;PREMIUM_DATE;PREMIUM_DAY;\n\n");
+        for (int i = 0; i < userList.size(); i++) {
+            UserModel userModel = userList.get(i);
+
+            sb.append(userModel.getUserId()).append(";\n")
+                    .append(userModel.getEmail()).append(";\n")
+                    .append(userModel.isPremium()).append(";\n")
+                    .append(userModel.getPremiumDate().toString()).append(";\n")
+                    .append(userModel.getPremiumDay()).append(";");
+        }
+
+        return sb.toString().getBytes();
     }
 }

@@ -6,7 +6,7 @@
 
 package com.shinigami.api.dto;
 
-import com.shinigami.api.repositories.favorite.FavoriteComicModel;
+import com.shinigami.api.model.FavoriteComicModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

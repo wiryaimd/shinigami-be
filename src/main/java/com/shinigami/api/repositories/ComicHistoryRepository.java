@@ -6,12 +6,15 @@
 
 package com.shinigami.api.repositories;
 
-import com.shinigami.api.model.FavoriteChapterModel;
+import com.shinigami.api.model.ComicHistoryModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
-public interface FavoriteChapterRepository extends JpaRepository<FavoriteChapterModel, Integer> {
+public interface ComicHistoryRepository extends JpaRepository<ComicHistoryModel, Integer> {
 
 
+    Optional<ComicHistoryModel> findByComicUrl(String comicUrl);
 }

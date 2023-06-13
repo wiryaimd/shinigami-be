@@ -7,7 +7,7 @@
 package com.shinigami.api.controller;
 
 import com.shinigami.api.dto.FavoriteChapterDto;
-import com.shinigami.api.repositories.favorite.FavoriteChapterModel;
+import com.shinigami.api.model.FavoriteChapterModel;
 import com.shinigami.api.service.FavoriteChapterService;
 
 import lombok.AllArgsConstructor;
