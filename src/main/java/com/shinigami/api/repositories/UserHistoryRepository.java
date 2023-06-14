@@ -22,4 +22,6 @@ public interface UserHistoryRepository extends JpaRepository<UserHistoryModel, I
     Optional<UserHistoryModel> findByChapterUrlAndUserModel_Id(String chapterUrl, int userId);
 
     Optional<List<UserHistoryModel>> findAllByComicUrlAndUserModel_UserId(String comicUrl, String userId);
+
+    Optional<List<UserHistoryModel>> findAllByUserModel_UserId(String userId);
 }

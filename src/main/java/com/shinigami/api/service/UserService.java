@@ -102,6 +102,7 @@ public class UserService {
     }
 
     public void saveHistory(String userId, HistoryDto historyDto) throws Throwable {
+        log.info("history save--------");
         UserModel userModel = userRepository.findByUserId(userId).orElseThrow(new Supplier<Throwable>() {
             @Override
             public Throwable get() {
@@ -150,5 +151,10 @@ public class UserService {
 
     public List<UserHistoryModel> historyComic(String userId, HistoryComicDto historyComicDto) {
         return userHistoryRepository.findAllByComicUrlAndUserModel_UserId(historyComicDto.getComicUrl(), userId).orElse(new ArrayList<>());
+    }
+
+    public List<UserHistoryModel> historyUser(String userId) {
+        log.info("history----");
+        return userHistoryRepository.findAllByUserModel_UserId(userId).orElse(new ArrayList<>());
     }
 }

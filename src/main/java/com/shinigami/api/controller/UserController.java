@@ -94,6 +94,11 @@ public class UserController {
         return ResponseEntity.ok(userService.historyComic(userId, historyComicDto));
     }
 
+    @GetMapping("/history/{userId}")
+    public ResponseEntity<List<UserHistoryModel>> getHistory(@PathVariable("userId") String userId){
+        return ResponseEntity.ok(userService.historyUser(userId));
+    }
+
     @GetMapping("/export/premium")
     public ResponseEntity<byte[]> exportPremium(@RequestParam("auth") String auth){
         if (!auth.equals("jaoganmanaluwh")){
