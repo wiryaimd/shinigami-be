@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "_users")
+@Table(name = "_users", indexes = { @Index(name = "index_user_model_uid", columnList = "userId") })
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,10 +40,7 @@ public class UserModel {
     private List<FavoriteChapterModel> favoriteChapterList;
 
     @OneToMany(mappedBy = "userModel")
-    private List<ComicHistoryModel> comicHistoryList;
-
-    @OneToMany(mappedBy = "userModel")
-    private List<ChapterHistoryModel> chapterHistoryList;
+    private List<UserHistoryModel> historyList;
 
     public UserModel(String userId, String email, boolean isPremium) {
         this.userId = userId;

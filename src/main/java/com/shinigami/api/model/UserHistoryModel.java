@@ -12,33 +12,31 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Entity
-@Table(name = "_history_comic",
-        indexes = { @Index(name = "history_comic_url", columnList = "comicUrl") }
+@Table(name = "_users_history",
+        indexes = { @Index(name = "index_history_comic_url", columnList = "chapterUrl") } // pakai index jika diperlukan
 )
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ComicHistoryModel {
+public class UserHistoryModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String comicUrl;
+    private String chapterTitle, chapterUrl;
 
     @ManyToOne
     @JoinColumn(name = "id_user")
     @JsonIgnore
     private UserModel userModel;
 
-    @OneToMany(mappedBy = "comicHistoryModel")
-    private List<ChapterHistoryModel> chapterHistoryList;
-
-    public ComicHistoryModel(String comicUrl, UserModel userModel) {
+    public UserHistoryModel(String comicUrl, String chapterTitle, String chapterUrl, UserModel userModel) {
         this.comicUrl = comicUrl;
+        this.chapterTitle = chapterTitle;
+        this.chapterUrl = chapterUrl;
         this.userModel = userModel;
     }
 }

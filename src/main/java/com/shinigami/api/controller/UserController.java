@@ -6,9 +6,12 @@
 
 package com.shinigami.api.controller;
 
+import com.shinigami.api.dto.HistoryComicDto;
 import com.shinigami.api.dto.HistoryDto;
 import com.shinigami.api.dto.PremiumDto;
 import com.shinigami.api.dto.UserDto;
+import com.shinigami.api.exception.ElementNotFoundException;
+import com.shinigami.api.model.UserHistoryModel;
 import com.shinigami.api.model.UserModel;
 import com.shinigami.api.repositories.UserRepository;
 import com.shinigami.api.service.UserService;
@@ -86,13 +89,18 @@ public class UserController {
         return ResponseEntity.ok(null);
     }
 
+    @PostMapping("/history/comic/{userId}")
+    public ResponseEntity<List<UserHistoryModel>> historyComic(@PathVariable("userId") String userId, @RequestBody HistoryComicDto historyComicDto) {
+        return ResponseEntity.ok(userService.historyComic(userId, historyComicDto));
+    }
+
     @GetMapping("/export/premium")
-    public ResponseEntity<byte[]> exportPremium(HttpServletRequest request){
-        if (request.getHeader("auth").equals("jaoganmanaluwh")){
+    public ResponseEntity<byte[]> exportPremium(@RequestParam("auth") String auth){
+        if (!auth.equals("jaoganmanaluwh")){
             return ResponseEntity.status(404).build();
         }
         return ResponseEntity.status(200)
-                .header("Content-Disposition", "attachment; filename=\"shinigami_premium.txt\"") // berisi attachment; untuk menandakan bahwa data response ini harus dianggap sesuatu yang harus di unduh oleh browser
+                .header("Content-Disposition", "attachment; filename=\"shinigami_premium.csv\"") // berisi attachment; untuk menandakan bahwa data response ini harus dianggap sesuatu yang harus di unduh oleh browser
                 .body(userService.exportPremium());
     }
 
