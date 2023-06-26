@@ -35,6 +35,7 @@ public class UserService {
     public UserDto saveUser(UserDto userDto){
         UserModel userExist = userRepository.findByUserId(userDto.getUserId()).orElse(null);
         if(userExist != null){
+            log.info("wa happ: {}", userExist.getUserId());
             return new UserDto(
                     userExist.getUserId(),
                     userExist.getEmail(),
@@ -42,6 +43,8 @@ public class UserService {
                     userExist.getPremiumDay(),
                     userExist.getPremiumDate()
             );
+        }else{
+            log.info("user null");
         }
 
         UserModel userModel = new UserModel(
