@@ -72,40 +72,54 @@ public class ScrapServiceR {
         }).onErrorResume(new Function<Throwable, Mono<? extends BrowseModel>>() {
             @Override
             public Mono<? extends BrowseModel> apply(Throwable throwable) {
+                throwable.printStackTrace();
                 return Mono.just(new BrowseModel(new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
             }
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    private int count = 0;
-    private int countFilter = 0;
-
     public Mono<List<ComicModel>> scrapBy(String by, int page, boolean isMultiple) {
-        try {
-            String url = String.format("https://shinigami.id/semua-series/page/%d/?m_orderby=%s", page, by);
-            return scrapBy(url, by, page, isMultiple);
-        }catch (IOException e){
-            throw new RuntimeException(e);
-        }
+        String url = String.format("https://shinigami.id/semua-series/page/%d/?m_orderby=%s", page, by);
+        return scrapBy(url, by, page, isMultiple);
     }
 
-    public Mono<List<ComicModel>> scrapBy(String url, String by, int page, boolean isMultiple) throws IOException {
-        return Mono.fromCallable(new Callable<Document>() {
+    public Mono<List<ComicModel>> scrapBy(String url, String by, int page, boolean isMultiple) {
+        return Mono.fromCallable(new Callable<Tuple2<Document, Document>>() {
             @Override
-            public Document call() throws Exception {
-                return Jsoup.connect(url)
+            public Tuple2<Document, Document> call() throws Exception {
+                Document docPage1 = Jsoup.connect(url)
                         .userAgent("Mozilla/5.0")
                         .get();
+
+                if (isMultiple){
+                    String urlPage2 = String.format("https://shinigami.id/semua-series/page/%d/?m_orderby=%s", page + 1, by);
+
+                    Document docPage2 = Jsoup.connect(urlPage2)
+                            .userAgent("Mozilla/5.0")
+                            .get();
+
+                    return Tuples.of(docPage1, docPage2);
+                }
+
+                return Tuples.of(docPage1, new Document(""));
             }
-        }).map(new Function<Document, List<ComicModel>>() {
+        }).map(new Function<Tuple2<Document, Document>, List<ComicModel>>() {
             @Override
-            public List<ComicModel> apply(Document document) {
-                return processScrapBy(document, page, isMultiple);
+            public List<ComicModel> apply(Tuple2<Document, Document> objects) {
+                Document docPage1 = objects.getT1();
+                List<ComicModel> comicList = processScrapBy(docPage1);
+
+                if (isMultiple){
+                    Document docPage2 = objects.getT2();
+                    comicList.addAll(processScrapBy(docPage2));
+                }
+
+                return comicList;
             }
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    private List<ComicModel> processScrapBy(Document document, int page, boolean isMultiple){
+    private List<ComicModel> processScrapBy(Document document){
         ComicFactory factory = new ComicFactory();
 
         Elements comicElement = document.select("h3.h5").select("a");
@@ -162,13 +176,6 @@ public class ScrapServiceR {
             comicList.add(comicModel);
         }
 
-        if (isMultiple && count < 1){
-            count += 1;
-
-            comicList.addAll(processScrapBy(document, page + 1, isMultiple));
-        }else{
-            count = 0;
-        }
         return comicList;
     }
 
@@ -307,7 +314,7 @@ public class ScrapServiceR {
         .subscribeOn(Schedulers.boundedElastic());
     }
 
-    public Mono<ChapterDetailModel> scrapChapter(String url) throws IOException {
+    public Mono<ChapterDetailModel> scrapChapter(String url) {
         return Mono.fromCallable(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
@@ -331,7 +338,7 @@ public class ScrapServiceR {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    public Mono<List<ComicModel>> scrapSearch(String keyword, int page) throws IOException {
+    public Mono<List<ComicModel>> scrapSearch(String keyword, int page) {
         return Mono.fromCallable(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
@@ -391,103 +398,37 @@ public class ScrapServiceR {
         }).onErrorReturn(List.of()).subscribeOn(Schedulers.boundedElastic());
     }
 
-    public Mono<List<ComicModel>> scrapFilter(FilterDto filterDto, int page) throws IOException {
-        return Mono.fromCallable(new Callable<Document>() {
-            @Override
-            public Document call() throws Exception {
-                String url = String.format("https://shinigami.id/genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page, filterDto.getSortBy());
+    public Mono<List<ComicModel>> scrapFilter(FilterDto filterDto, int page){
+         return Mono.fromCallable(new Callable<Tuple2<Document, Document>>() {
+             @Override
+             public Tuple2<Document, Document> call() throws Exception {
+                 String urlPage1 = String.format("https://shinigami.id/genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page, filterDto.getSortBy());
+                 String urlPage2 = String.format("https://shinigami.id/genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page + 1, filterDto.getSortBy());
 
-                return Jsoup.connect(url)
-                        .userAgent("Mozilla/5.0")
-                        .get();
-            }
-        }).map(new Function<Document, List<ComicModel>>() {
-            @Override
-            public List<ComicModel> apply(Document document) {
-                return processScrapFilter(document, filterDto, page);
-            }
+                 Document docPage1 = Jsoup.connect(urlPage1)
+                         .userAgent("Mozilla/5.0")
+                         .get();
 
-        }).onErrorReturn(List.of()).subscribeOn(Schedulers.boundedElastic());
+                 Document docPage2 = Jsoup.connect(urlPage2)
+                         .userAgent("Mozilla/5.0")
+                         .get();
+
+                 return Tuples.of(docPage1, docPage2);
+             }
+         }).map(new Function<Tuple2<Document, Document>, List<ComicModel>>() {
+             @Override
+             public List<ComicModel> apply(Tuple2<Document, Document> objects) {
+                 Document page1 = objects.getT1();
+                 Document page2 = objects.getT2();
+
+                 List<ComicModel> comicList = processScrapFilter(page1);
+                 comicList.addAll(processScrapFilter(page2));
+                 return comicList;
+             }
+         }).onErrorReturn(List.of()).subscribeOn(Schedulers.boundedElastic());
     }
 
-
-//    private Flux<List<ComicModel>> a(FilterDto filterDto, int page){
-//        return Mono.fromCallable(new Callable<Document>() {
-//            @Override
-//            public Document call() throws Exception {
-//                String url = String.format("https://shinigami.id/genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page, filterDto.getSortBy());
-//
-//                return Jsoup.connect(url)
-//                        .userAgent("Mozilla/5.0")
-//                        .get();
-//            }
-//        }).zipWith(Mono.just(0)).expand(new Function<Tuple2<Document, Integer>, Publisher<? extends Tuple3<Document, Integer, List<ComicModel>>>>() {
-//            @Override
-//            public Publisher<? extends Tuple3<Document, Integer, List<ComicModel>>> apply(Tuple2<Document, Integer> objects) {
-//                Document document = objects.getT1();
-//                int countFilter = objects.getT2();
-//
-//                ComicFactory factory = new ComicFactory();
-//
-//                Elements comicElement = document.select("h3.h5").select("a");
-//                for (Element element : comicElement) {
-//                    factory.getTitleList().add(element.text());
-//                    factory.getUrlList().add(element.attr("abs:href"));
-//                }
-//
-//                int minSize = Math.min(factory.getTitleList().size(), factory.getUrlList().size());
-//
-//                Elements ratingElement = document.select("span.score");
-//                for (Element element : ratingElement){
-//                    factory.getRatingList().add(Float.parseFloat(element.text()));
-//                }
-//
-//                Elements imageElement = document.select("div.item-thumb.c-image-hover img");
-//                for(Element element : imageElement){
-//                    String imgUrl = element.attr("abs:data-src");
-//                    factory.getCoverList().add(imgUrl);
-//                }
-//
-//                Elements chapterElement = document.select("span.chapter a.btn-link");
-//
-//                for (int i = 0; i < chapterElement.size(); i += 2) {
-//                    Element element = chapterElement.get(i);
-//
-//                    factory.getChapterList().add(element.text());
-//                    factory.getChapterUrlList().add(element.attr("abs:href"));
-//                }
-//
-//                List<ComicModel> comicList = new ArrayList<>();
-//
-//                for (int i = 0; i < minSize; i++) {
-//                    ComicModel comicModel = new ComicModel(
-//                            factory.getTitleList().get(i),
-//                            factory.getUrlList().get(i),
-//                            factory.getCoverList().get(i),
-//                            factory.getChapterList().get(i),
-//                            factory.getChapterUrlList().get(i),
-//                            factory.getRatingList().get(i)
-//                    );
-//                    comicList.add(comicModel);
-//                }
-//
-//                if (countFilter < 1){
-////                    comicList.addAll(processScrapFilter(document, filterDto, page + 1));
-//                    return Mono.just(Tuples.of(document, countFilter + 1, comicList));
-//                }else{
-//                    return Mono.empty();
-//                }
-//            }
-//        }).map(new Function<Tuple2<Document, Integer>, List<ComicModel>>() {
-//            @Override
-//            public List<ComicModel> apply(Tuple2<Document, Integer> objects) {
-//
-//                return comicList;
-//            }
-//        });
-//    }
-
-    private List<ComicModel> processScrapFilter(Document document, FilterDto filterDto, int page) {
+    private List<ComicModel> processScrapFilter(Document document){
         ComicFactory factory = new ComicFactory();
 
         Elements comicElement = document.select("h3.h5").select("a");
@@ -531,14 +472,6 @@ public class ScrapServiceR {
             );
             comicList.add(comicModel);
         }
-
-        if (countFilter < 1){
-            countFilter += 1;
-            comicList.addAll(processScrapFilter(document, filterDto, page + 1));
-        }else{
-            countFilter = 0;
-        }
-
         return comicList;
     }
 }
