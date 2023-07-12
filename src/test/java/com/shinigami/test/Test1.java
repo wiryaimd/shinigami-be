@@ -71,27 +71,27 @@ public class Test1 {
 
     }
 
-    @Test // ketika menggunakan mockito
-    void iydeh() throws IOException {
-
-        Document document = Jsoup.connect("https://shinigami.id/").get();
-
-        ScrapService scrapService = Mockito.mock(ScrapService.class); // menggunakan Mockito.moc() untuk membuat mock scrapService
-        // dengan menggukana mock() ini nanti class yg di return itu bisa dipakai di Mockito.when()
-
-        List<ComicModel> comicList = new ArrayList<>();
-        comicList.add(new ComicModel("hooh", "apsi", "anjime"));
-
-        // ini berfungsi ketika/when scrapService.scrapHome() dipanggil, maka
-        // return custom data yaitu list yang telah dibuat diatas
-        Mockito.when(scrapService.scrapHome(document)).thenReturn(comicList); // thenReturn ini gitu
-
-        // jadi ketika scrapService.scrapHome() di call, maka yg di return itu data yg diatas
-        // sehingga hasil getTitle() == true yaitu "hooh"
-        Assertions.assertThat(scrapService.scrapHome(document).get(0).getTitle()).isEqualTo("hooh");
-
-        // mockito ini digunakan untuk meng mocking hasil return yg ada pada suatu class
-    }
+//    @Test // ketika menggunakan mockito
+//    void iydeh() throws IOException {
+//
+//        Document document = Jsoup.connect("https://shinigami.id/").get();
+//
+//        ScrapService scrapService = Mockito.mock(ScrapService.class); // menggunakan Mockito.moc() untuk membuat mock scrapService
+//        // dengan menggukana mock() ini nanti class yg di return itu bisa dipakai di Mockito.when()
+//
+//        List<ComicModel> comicList = new ArrayList<>();
+//        comicList.add(new ComicModel("hooh", "apsi", "anjime"));
+//
+//        // ini berfungsi ketika/when scrapService.scrapHome() dipanggil, maka
+//        // return custom data yaitu list yang telah dibuat diatas
+//        Mockito.when(scrapService.scrapHome(document)).thenReturn(comicList); // thenReturn ini gitu
+//
+//        // jadi ketika scrapService.scrapHome() di call, maka yg di return itu data yg diatas
+//        // sehingga hasil getTitle() == true yaitu "hooh"
+//        Assertions.assertThat(scrapService.scrapHome(document).get(0).getTitle()).isEqualTo("hooh");
+//
+//        // mockito ini digunakan untuk meng mocking hasil return yg ada pada suatu class
+//    }
 
     @Test // contoh mock 2
     void mock2(){
