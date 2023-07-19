@@ -4,10 +4,9 @@
  * All rights reserved.
  */
 
-package com.shinigami.test;
+package com.shinigami.api;
 
 import com.shinigami.api.dto.UserDto;
-import com.shinigami.api.model.ComicModel;
 import com.shinigami.api.model.UserModel;
 import com.shinigami.api.repositories.UserHistoryRepository;
 import com.shinigami.api.repositories.UserRepository;
@@ -15,17 +14,11 @@ import com.shinigami.api.service.ScrapService;
 import com.shinigami.api.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

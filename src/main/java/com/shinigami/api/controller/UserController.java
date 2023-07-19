@@ -50,7 +50,7 @@ public class UserController {
 
     @PostMapping("/premium")
     public ResponseEntity<UserModel> updateUser(@RequestBody PremiumDto premiumDto, HttpServletRequest request){
-        String basic = request.getHeader("Authorization");
+        String basic = request.getHeader("Authorization"); // basic?
         if (basic == null){
             return ResponseEntity.badRequest().build();
         }
@@ -62,6 +62,8 @@ public class UserController {
         }
 
         UserModel userModel = userService.setPremium(premiumDto.getEmail(), premiumDto.getMonth() * 30);
+
+//        log.info("bang banh: {}", userModel == null);
 
         if (userModel == null){
             return ResponseEntity.notFound().build();
@@ -107,6 +109,14 @@ public class UserController {
         return ResponseEntity.status(200)
                 .header("Content-Disposition", "attachment; filename=\"shinigami_premium.csv\"") // berisi attachment; untuk menandakan bahwa data response ini harus dianggap sesuatu yang harus di unduh oleh browser
                 .body(userService.exportPremium());
+    }
+
+    @GetMapping(produces = "application/json")
+    public ResponseEntity<List<UserModel>> users(@RequestParam("auth") String auth){
+        if (!auth.equals("aselolejosjos")){
+            return ResponseEntity.status(404).build();
+        }
+        return ResponseEntity.ok(userService.allUser());
     }
 
 }

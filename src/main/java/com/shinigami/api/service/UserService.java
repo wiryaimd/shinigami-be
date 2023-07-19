@@ -160,4 +160,8 @@ public class UserService {
         log.info("history----");
         return userHistoryRepository.findAllByUserModel_UserId(userId).orElse(new ArrayList<>());
     }
+
+    public List<UserModel> allUser(){
+        return userRepository.findAll();
+    }
 }

@@ -48,6 +48,7 @@ public class ScrapService {
         }).flatMap(new Function<Document, Mono<? extends BrowseModel>>() {
             @Override
             public Mono<? extends BrowseModel> apply(Document document) {
+//                log.info("infoo massehhh");
                 return scrapHome(document).zipWith(scrapBy(TRENDING, 1, false)).map(new Function<Tuple2<List<ComicModel>, List<ComicModel>>, BrowseModel>() {
                     @Override
                     public BrowseModel apply(Tuple2<List<ComicModel>, List<ComicModel>> objects) {
