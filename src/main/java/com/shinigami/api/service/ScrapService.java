@@ -71,6 +71,65 @@ public class ScrapService {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
+    public Mono<ComicModel> scrapShortComic(String url) {
+        return Mono.fromCallable(new Callable<Document>() {
+            @Override
+            public Document call() throws Exception {
+                return Jsoup.connect(url)
+                        .userAgent("Mozilla/5.0")
+                        .get();
+            }
+        }).flatMap(new Function<Document, Mono<? extends ComicModel>>() {
+            @Override
+            public Mono<? extends ComicModel> apply(Document document) {
+                return processScrapComicShort(url, document);
+            }
+        }).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    private Mono<ComicModel> processScrapComicShort(String url, Document document) {
+        String title = document.select("div.post-title h1").text();
+        String coverUrl = document.select("div.summary_image img").attr("abs:data-src");
+
+        return Mono.just(new ComicModel(title, url, coverUrl));
+    }
+
+    public Mono<FullComicModel> scrapFullComic(String url){
+        return Mono.fromCallable(new Callable<Document>() {
+            @Override
+            public Document call() throws Exception {
+                return Jsoup.connect(url)
+                        .userAgent("Mozilla/5.0")
+                        .get();
+            }
+        }).zipWith(Mono.fromCallable(new Callable<Document>() {
+            @Override
+            public Document call() throws Exception {
+                String cleaned = url.endsWith("/") ? url : url + "/";
+
+                return Jsoup.connect(String.format("%sajax/chapters/", cleaned))
+                        .userAgent("Mozilla/5.0")
+                        .post();
+            }
+        })).flatMap(new Function<Tuple2<Document, Document>, Mono<FullComicModel>>() {
+            @Override
+            public Mono<FullComicModel> apply(Tuple2<Document, Document> objects) {
+                Document document = objects.getT1();
+                Document chapterDocument = objects.getT2();
+
+                Mono<ComicModel> comicModel = processScrapComicShort(url, document);
+                Mono<ComicDetailModel> comicDetailModel = processScrapDetail(document, chapterDocument);
+
+                return Mono.zip(comicModel, comicDetailModel).map(new Function<Tuple2<ComicModel, ComicDetailModel>, FullComicModel>() {
+                    @Override
+                    public FullComicModel apply(Tuple2<ComicModel, ComicDetailModel> objects) {
+                        return new FullComicModel(objects.getT1(), objects.getT2());
+                    }
+                });
+            }
+        }).subscribeOn(Schedulers.boundedElastic());
+    }
+
     public Mono<List<ComicModel>> scrapBy(String by, int page, boolean isMultiple) {
         String url = String.format("https://shinigami.id/semua-series/page/%d/?m_orderby=%s", page, by);
         return scrapBy(url, by, page, isMultiple);
@@ -246,54 +305,11 @@ public class ScrapService {
         })).flatMap(new Function<Tuple2<Document, Document>, Mono<? extends ComicDetailModel>>() {
             @Override
             public Mono<? extends ComicDetailModel> apply(Tuple2<Document, Document> objects) {
-                ComicDetailFactory comicDetailFactory = new ComicDetailFactory();
 
                 Document document = objects.getT1();
                 Document chapterDocument = objects.getT2();
 
-                StringBuilder synopsisSb = new StringBuilder();
-                Elements synopsisElement = document.select("div.summary__content p");
-                for (Element element : synopsisElement){
-                    synopsisSb.append(element.text()).append("\n\n");
-                }
-
-                comicDetailFactory.getDetailList().add(new ComicDetailModel.Detail("rating_num", document.select("div.post-rating div.post-total-rating span.score").text()));
-
-                Elements detailElement = document.select("div.post-content div.post-content_item");
-                for (Element element : detailElement){
-                    String name = element.select("div.summary-heading h5").text();
-                    String value = element.select("div.summary-content").text();
-
-                    comicDetailFactory.getDetailList().add(new ComicDetailModel.Detail(name, value));
-                }
-
-                Elements chapterElement = chapterDocument.select("li.wp-manga-chapter");
-                for (Element element : chapterElement){
-                    String chapterCover = element.select("img.thumb").attr("abs:src");
-                    String chapterUrl = element.select("div.chapter-link a").attr("abs:href");
-                    String chapterTitle = element.select("p.chapter-manhwa-title").text();
-                    String releaseDate = element.select("span.chapter-release-date").text();
-
-                    comicDetailFactory.getChapterList().add(new ChapterModel(
-                            chapterTitle,
-                            chapterUrl,
-                            chapterCover,
-                            releaseDate
-                    ));
-                }
-
-                Elements relatedElement = document.select("div.related-reading-img");
-                for (Element element : relatedElement){
-                    String relatedTitle = element.select("a").attr("title");
-                    String relatedUrl = element.select("a").attr("abs:href");
-                    String relatedCover = element.select("img").attr("abs:data-src");
-
-                    comicDetailFactory.getRelatedList().add(new ComicModel(
-                            relatedTitle, relatedUrl, relatedCover
-                    ));
-                }
-
-                return Mono.just(new ComicDetailModel(synopsisSb.toString(), comicDetailFactory.getDetailList(), comicDetailFactory.getChapterList(), comicDetailFactory.getRelatedList()));
+                return processScrapDetail(document, chapterDocument);
             }
         })
                 // ketika tidak menggunkan onError() maka error yg occur pada Mono.fromCallable()
@@ -305,6 +321,53 @@ public class ScrapService {
 //            }
 //        }
         .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    private Mono<ComicDetailModel> processScrapDetail(Document document, Document chapterDocument) {
+        ComicDetailFactory comicDetailFactory = new ComicDetailFactory();
+        StringBuilder synopsisSb = new StringBuilder();
+        Elements synopsisElement = document.select("div.summary__content p");
+        for (Element element : synopsisElement){
+            synopsisSb.append(element.text()).append("\n\n");
+        }
+
+        comicDetailFactory.getDetailList().add(new ComicDetailModel.Detail("rating_num", document.select("div.post-rating div.post-total-rating span.score").text()));
+
+        Elements detailElement = document.select("div.post-content div.post-content_item");
+        for (Element element : detailElement){
+            String name = element.select("div.summary-heading h5").text();
+            String value = element.select("div.summary-content").text();
+
+            comicDetailFactory.getDetailList().add(new ComicDetailModel.Detail(name, value));
+        }
+
+        Elements chapterElement = chapterDocument.select("li.wp-manga-chapter");
+        for (Element element : chapterElement){
+            String chapterCover = element.select("img.thumb").attr("abs:src");
+            String chapterUrl = element.select("div.chapter-link a").attr("abs:href");
+            String chapterTitle = element.select("p.chapter-manhwa-title").text();
+            String releaseDate = element.select("span.chapter-release-date").text();
+
+            comicDetailFactory.getChapterList().add(new ChapterModel(
+                    chapterTitle,
+                    chapterUrl,
+                    chapterCover,
+                    releaseDate
+            ));
+        }
+
+        Elements relatedElement = document.select("div.related-reading-img");
+        for (Element element : relatedElement){
+            String relatedTitle = element.select("a").attr("title");
+            String relatedUrl = element.select("a").attr("abs:href");
+            String relatedCover = element.select("img").attr("abs:data-src");
+
+            comicDetailFactory.getRelatedList().add(new ComicModel(
+                    relatedTitle, relatedUrl, relatedCover
+            ));
+        }
+
+        return Mono.just(new ComicDetailModel(synopsisSb.toString(), comicDetailFactory.getDetailList(), comicDetailFactory.getChapterList(), comicDetailFactory.getRelatedList()));
     }
 
     public Mono<ChapterDetailModel> scrapChapter(String url) {

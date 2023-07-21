@@ -7,10 +7,7 @@
 package com.shinigami.api.controller;
 
 import com.shinigami.api.dto.FilterDto;
-import com.shinigami.api.model.BrowseModel;
-import com.shinigami.api.model.ChapterDetailModel;
-import com.shinigami.api.model.ComicDetailModel;
-import com.shinigami.api.model.ComicModel;
+import com.shinigami.api.model.*;
 import com.shinigami.api.service.ScrapService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +33,16 @@ public class ComicController {
     @GetMapping("/comic")
     public Mono<ComicDetailModel> detail(@RequestParam(name = "url") String url) {
         return scrapService.scrapDetail(url);
+    }
+
+    @GetMapping("/comic/short")
+    public Mono<ComicModel> comicShort(@RequestParam(name = "url") String url){
+        return scrapService.scrapShortComic(url);
+    }
+
+    @GetMapping("/comic/full")
+    public Mono<FullComicModel> comicFull(@RequestParam(name = "url") String url){
+        return scrapService.scrapFullComic(url);
     }
 
     @GetMapping("/chapter")
