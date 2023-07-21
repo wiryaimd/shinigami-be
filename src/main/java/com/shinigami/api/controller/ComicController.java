@@ -41,7 +41,7 @@ public class ComicController {
     }
 
     @GetMapping("/comic/full")
-    public Mono<FullComicModel> comicFull(@RequestParam(name = "url") String url){
+    public Mono<ComicFullModel> comicFull(@RequestParam(name = "url") String url){
         return scrapService.scrapFullComic(url);
     }
 

@@ -38,6 +38,7 @@ public class ScrapService {
     public static final String NEW = "new-manga";
 
     public Mono<BrowseModel> scrapBrowseV3(){
+        log.info("scrap browse v3 open");
         return Mono.fromCallable(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
@@ -94,7 +95,7 @@ public class ScrapService {
         return Mono.just(new ComicModel(title, url, coverUrl));
     }
 
-    public Mono<FullComicModel> scrapFullComic(String url){
+    public Mono<ComicFullModel> scrapFullComic(String url){
         return Mono.fromCallable(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
@@ -111,19 +112,19 @@ public class ScrapService {
                         .userAgent("Mozilla/5.0")
                         .post();
             }
-        })).flatMap(new Function<Tuple2<Document, Document>, Mono<FullComicModel>>() {
+        })).flatMap(new Function<Tuple2<Document, Document>, Mono<ComicFullModel>>() {
             @Override
-            public Mono<FullComicModel> apply(Tuple2<Document, Document> objects) {
+            public Mono<ComicFullModel> apply(Tuple2<Document, Document> objects) {
                 Document document = objects.getT1();
                 Document chapterDocument = objects.getT2();
 
                 Mono<ComicModel> comicModel = processScrapComicShort(url, document);
                 Mono<ComicDetailModel> comicDetailModel = processScrapDetail(document, chapterDocument);
 
-                return Mono.zip(comicModel, comicDetailModel).map(new Function<Tuple2<ComicModel, ComicDetailModel>, FullComicModel>() {
+                return Mono.zip(comicModel, comicDetailModel).map(new Function<Tuple2<ComicModel, ComicDetailModel>, ComicFullModel>() {
                     @Override
-                    public FullComicModel apply(Tuple2<ComicModel, ComicDetailModel> objects) {
-                        return new FullComicModel(objects.getT1(), objects.getT2());
+                    public ComicFullModel apply(Tuple2<ComicModel, ComicDetailModel> objects) {
+                        return new ComicFullModel(objects.getT1(), objects.getT2());
                     }
                 });
             }

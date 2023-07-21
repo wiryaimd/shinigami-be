@@ -157,7 +157,7 @@ public class UserService {
     }
 
     public List<UserHistoryModel> historyUser(String userId) {
-        log.info("history----");
+//        log.info("history----");
         return userHistoryRepository.findAllByUserModel_UserId(userId).orElse(new ArrayList<>());
     }
 

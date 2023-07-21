@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FullComicModel {
+public class ComicFullModel {
 
     private ComicModel comicModel;
     private ComicDetailModel comicDetailModel;
