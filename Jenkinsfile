@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        docker{
+            image 'openjdk:17-jdk-slim'
+        }
+    }
     stages{
         stage('checkout'){
             steps{
