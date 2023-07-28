@@ -1,20 +1,23 @@
 pipeline {
-    agent {
-        docker{
-            image 'openjdk:17-jdk-slim'
-        }
-    }
+    agent none
     stages{
         stage('checkout'){
+            agent {
+                docker{
+                    image 'openjdk:17-jdk-slim'
+                }
+            }
+
             steps{
                 sh 'chmod +x mvnw'
-            }
-        }
-        stage('build'){
-            steps{
                 sh './mvnw clean package -DskipTests'
             }
         }
+//         stage('build'){
+//             steps{
+//                 sh './mvnw clean package -DskipTests'
+//             }
+//         }
     }
 }
 
