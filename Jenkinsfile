@@ -2,11 +2,11 @@ pipeline {
     agent none
     stages{
         stage('checkout'){
-            agent {
-                docker{
-                    image 'openjdk:17-jdk-slim'
-                }
-            }
+//             agent {
+//                 docker{
+//                     image 'openjdk:17-jdk-slim'
+//                 }
+//             }
 
             steps{
                 sh 'chmod +x mvnw'
