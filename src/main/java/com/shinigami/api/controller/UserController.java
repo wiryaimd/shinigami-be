@@ -119,4 +119,9 @@ public class UserController {
         return ResponseEntity.ok(userService.allUser());
     }
 
+    @GetMapping("/cicd-test1")
+    public ResponseEntity<String> cicd1(){
+        return ResponseEntity.ok("here it is ci cd test1");
+    }
+
 }
