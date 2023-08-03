@@ -104,6 +104,19 @@ public class UserService {
         return userRepository.save(userModel);
     }
 
+    public UserModel setPremium(String email, int day, LocalDateTime startTime){
+        UserModel userModel = userRepository.findByEmail(email).orElse(null);
+        if (userModel == null){
+            return null;
+        }
+
+        userModel.setPremium(true);
+        userModel.setPremiumDate(startTime);
+        userModel.setPremiumDay(day);
+
+        return userRepository.save(userModel);
+    }
+
     public void saveHistory(String userId, HistoryDto historyDto) throws Throwable {
         log.info("history save--------");
         UserModel userModel = userRepository.findByUserId(userId).orElseThrow(new Supplier<Throwable>() {

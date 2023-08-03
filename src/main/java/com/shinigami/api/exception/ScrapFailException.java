@@ -6,7 +6,7 @@
 
 package com.shinigami.api.exception;
 
-public class ScrapFailException extends Exception{
+public class ScrapFailException extends RuntimeException{
 
     public ScrapFailException(String message) {
         super(message);
