@@ -6,6 +6,10 @@
 
 package com.shinigami.api.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.shinigami.api.dto.PaymentDto;
 import com.shinigami.api.dto.PaymentValidateDto;
@@ -72,8 +76,10 @@ public class PaymentService {
 
         int code;
         try {
-            code = Integer.parseInt(new JSONObject(body).getString("status_code"));
-        } catch (JSONException e) {
+            JsonNode jsonNode = new ObjectMapper().readTree(body);
+//            code = Integer.parseInt(new JSONObject(body).getString("status_code"));
+            code = jsonNode.get("status_code").asInt();
+        } catch (Exception e) {
             throw new PaymentCancelException("payment cancel");
         }
 
@@ -82,10 +88,11 @@ public class PaymentService {
         }
 
         try {
-            paymentTime = new JSONObject(body).getString("settlement_time");
+            JsonNode jsonNode = new ObjectMapper().readTree(body);
+            paymentTime = jsonNode.get("settlement_time").asText();
 
             log.info("settlement time: {}", paymentTime);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             throw new PaymentNotCompleteException("payment not complete 2", code);
         }
 
