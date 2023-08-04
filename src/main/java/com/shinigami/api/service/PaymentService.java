@@ -54,7 +54,8 @@ public class PaymentService {
         HttpEntity<String> request = new HttpEntity<>(gson.toJson(paymentDto, PaymentDto.class), headers);
 
         String response = new RestTemplate().postForObject(
-                "https://app.sandbox.midtrans.com/snap/v1/transactions",
+//                "https://app.sandbox.midtrans.com/snap/v1/transactions",
+                "https://app.midtrans.com/snap/v1/transactions",
                 request,
                 String.class
         );
