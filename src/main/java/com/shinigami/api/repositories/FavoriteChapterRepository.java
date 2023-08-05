@@ -14,5 +14,5 @@ import org.springframework.stereotype.Repository;
 public interface FavoriteChapterRepository extends JpaRepository<FavoriteChapterModel, Integer> {
 
 
-    void deleteByUserId();
+//    void deleteByUserId();
 }
