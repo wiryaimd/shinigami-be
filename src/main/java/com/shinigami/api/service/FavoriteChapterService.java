@@ -69,4 +69,8 @@ public class FavoriteChapterService {
             }
         }
     }
+
+    public void removeAll(String userId) {
+//        favoriteChapterRepository.deleteByUserId();
+    }
 }

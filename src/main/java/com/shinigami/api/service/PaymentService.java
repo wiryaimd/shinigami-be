@@ -67,7 +67,7 @@ public class PaymentService {
 
 
     public void validate(PaymentValidateDto paymentValidateDto) {
-        String url = String.format("https://app.sandbox.midtrans.com/snap/v1/transactions/%s/status", paymentValidateDto.getToken());
+        String url = String.format("https://app.midtrans.com/snap/v1/transactions/%s/status", paymentValidateDto.getToken());
         ResponseEntity<String> response = new RestTemplate().getForEntity(url, String.class);
 
         String body = response.getBody();
