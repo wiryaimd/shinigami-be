@@ -72,7 +72,7 @@ public class FavoriteChapterService {
     }
 
     @Transactional
-    public void removeAll(int userId) {
-        favoriteChapterRepository.deleteByUserModel_Id(userId);
+    public void removeAll(String userId) {
+        favoriteChapterRepository.deleteByUserModel_UserId(userId);
     }
 }

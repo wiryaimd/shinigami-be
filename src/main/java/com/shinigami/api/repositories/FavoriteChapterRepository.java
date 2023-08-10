@@ -15,6 +15,6 @@ import java.util.Optional;
 
 @Repository
 public interface FavoriteChapterRepository extends JpaRepository<FavoriteChapterModel, Integer> {
-    void deleteByUserModel_Id(int userId);
+    void deleteByUserModel_UserId(String userId);
     Optional<List<FavoriteChapterModel>> findAllByUserModel_Id(int userId);
 }
