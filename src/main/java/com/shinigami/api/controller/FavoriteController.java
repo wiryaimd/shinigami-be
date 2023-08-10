@@ -48,7 +48,7 @@ public class FavoriteController { // for favorite chapter
     }
 
     @DeleteMapping("/all/{userId}")
-    public ResponseEntity<Void> deleteFavoriteAll(@PathVariable("userId") String userId, @RequestParam("auth") String auth){
+    public ResponseEntity<Void> deleteFavoriteAll(@PathVariable("userId") int userId, @RequestParam("auth") String auth){
         if (!auth.equals("its so sweet knowing that you love mee")){
             return ResponseEntity.status(404).body(null);
         }

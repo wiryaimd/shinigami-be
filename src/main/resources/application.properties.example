@@ -6,4 +6,6 @@ spring.datasource.password=
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 
+midtrans.secretkey=
+
 spring.jpa.show-sql=true
