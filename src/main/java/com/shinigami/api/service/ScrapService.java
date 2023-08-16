@@ -37,12 +37,14 @@ public class ScrapService {
     public static final String VIEWS = "views";
     public static final String NEW = "new-manga";
 
+    public static final String BASE_URL = "https://chinigami.id/";
+
     public Mono<BrowseModel> scrapBrowseV3(){
         log.info("scrap browse v3 open");
         return Mono.fromCallable(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
-                return Jsoup.connect("https://shinigami.id/")
+                return Jsoup.connect(BASE_URL)
                         .userAgent("Mozilla/5.0")
                         .get();
             }
@@ -132,7 +134,7 @@ public class ScrapService {
     }
 
     public Mono<List<ComicModel>> scrapBy(String by, int page, boolean isMultiple) {
-        String url = String.format("https://shinigami.id/semua-series/page/%d/?m_orderby=%s", page, by);
+        String url = String.format(BASE_URL + "semua-series/page/%d/?m_orderby=%s", page, by);
         return scrapBy(url, by, page, isMultiple);
     }
 
@@ -145,7 +147,7 @@ public class ScrapService {
                         .get();
 
                 if (isMultiple){
-                    String urlPage2 = String.format("https://shinigami.id/semua-series/page/%d/?m_orderby=%s", page + 1, by);
+                    String urlPage2 = String.format(BASE_URL + "semua-series/page/%d/?m_orderby=%s", page + 1, by);
 
                     Document docPage2 = Jsoup.connect(urlPage2)
                             .userAgent("Mozilla/5.0")
@@ -399,7 +401,7 @@ public class ScrapService {
         return Mono.fromCallable(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
-                String url = String.format("https://shinigami.id/page/%d/?s=%s&post_type=wp-manga", page, keyword);
+                String url = String.format(BASE_URL + "page/%d/?s=%s&post_type=wp-manga", page, keyword);
 
                 return Jsoup.connect(url)
                         .userAgent("Mozilla/5.0")
@@ -459,8 +461,8 @@ public class ScrapService {
          return Mono.fromCallable(new Callable<Tuple2<Document, Document>>() {
              @Override
              public Tuple2<Document, Document> call() throws Exception {
-                 String urlPage1 = String.format("https://shinigami.id/genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page, filterDto.getSortBy());
-                 String urlPage2 = String.format("https://shinigami.id/genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page + 1, filterDto.getSortBy());
+                 String urlPage1 = String.format(BASE_URL + "genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page, filterDto.getSortBy());
+                 String urlPage2 = String.format(BASE_URL + "genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page + 1, filterDto.getSortBy());
 
                  Document docPage1 = Jsoup.connect(urlPage1)
                          .userAgent("Mozilla/5.0")
