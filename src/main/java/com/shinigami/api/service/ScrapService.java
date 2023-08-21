@@ -10,6 +10,7 @@ import com.shinigami.api.dto.FilterDto;
 import com.shinigami.api.factory.ComicDetailFactory;
 import com.shinigami.api.factory.ComicFactory;
 import com.shinigami.api.model.*;
+import com.shinigami.api.util.Const;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -37,14 +38,12 @@ public class ScrapService {
     public static final String VIEWS = "views";
     public static final String NEW = "new-manga";
 
-    public static final String BASE_URL = "https://chinigami.id/";
-
     public Mono<BrowseModel> scrapBrowseV3(){
         log.info("scrap browse v3 open");
         return Mono.fromCallable(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
-                return Jsoup.connect(BASE_URL)
+                return Jsoup.connect(Const.SCRAP_URL)
                         .userAgent("Mozilla/5.0")
                         .get();
             }
@@ -134,7 +133,7 @@ public class ScrapService {
     }
 
     public Mono<List<ComicModel>> scrapBy(String by, int page, boolean isMultiple) {
-        String url = String.format(BASE_URL + "semua-series/page/%d/?m_orderby=%s", page, by);
+        String url = String.format(Const.SCRAP_URL + "semua-series/page/%d/?m_orderby=%s", page, by);
         return scrapBy(url, by, page, isMultiple);
     }
 
@@ -147,7 +146,7 @@ public class ScrapService {
                         .get();
 
                 if (isMultiple){
-                    String urlPage2 = String.format(BASE_URL + "semua-series/page/%d/?m_orderby=%s", page + 1, by);
+                    String urlPage2 = String.format(Const.SCRAP_URL + "semua-series/page/%d/?m_orderby=%s", page + 1, by);
 
                     Document docPage2 = Jsoup.connect(urlPage2)
                             .userAgent("Mozilla/5.0")
@@ -388,6 +387,9 @@ public class ScrapService {
                 Elements imgElement = document.select("div.page-break img");
                 for(Element element : imgElement){
                     String img = element.attr("abs:data-src");
+                    if (img.trim().isEmpty()){
+                        continue;
+                    }
 
                     imgList.add(img);
                 }
@@ -401,7 +403,7 @@ public class ScrapService {
         return Mono.fromCallable(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
-                String url = String.format(BASE_URL + "page/%d/?s=%s&post_type=wp-manga", page, keyword);
+                String url = String.format(Const.SCRAP_URL + "page/%d/?s=%s&post_type=wp-manga", page, keyword);
 
                 return Jsoup.connect(url)
                         .userAgent("Mozilla/5.0")
@@ -461,8 +463,8 @@ public class ScrapService {
          return Mono.fromCallable(new Callable<Tuple2<Document, Document>>() {
              @Override
              public Tuple2<Document, Document> call() throws Exception {
-                 String urlPage1 = String.format(BASE_URL + "genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page, filterDto.getSortBy());
-                 String urlPage2 = String.format(BASE_URL + "genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page + 1, filterDto.getSortBy());
+                 String urlPage1 = String.format(Const.SCRAP_URL + "genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page, filterDto.getSortBy());
+                 String urlPage2 = String.format(Const.SCRAP_URL + "genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page + 1, filterDto.getSortBy());
 
                  Document docPage1 = Jsoup.connect(urlPage1)
                          .userAgent("Mozilla/5.0")

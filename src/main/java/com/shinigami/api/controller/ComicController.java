@@ -9,6 +9,7 @@ package com.shinigami.api.controller;
 import com.shinigami.api.dto.FilterDto;
 import com.shinigami.api.model.*;
 import com.shinigami.api.service.ScrapService;
+import com.shinigami.api.util.Const;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -60,13 +61,13 @@ public class ComicController {
 
     @GetMapping("/projects")
     public Mono<List<ComicModel>> projects(@RequestParam(name = "page", defaultValue = "1") int page) {
-        String url = String.format("https://shinigami.id/project/page/%d", page);
+        String url = String.format(Const.SCRAP_URL + "project/page/%d", page);
         return scrapService.scrapBy(url, "", page, false);
     }
 
     @GetMapping("/mirror")
     public Mono<List<ComicModel>> mirror(@RequestParam(name = "page", defaultValue = "1") int page) {
-        String url = String.format("https://shinigami.id/mirror/page/%d", page);
+        String url = String.format(Const.SCRAP_URL + "mirror/page/%d", page);
         return scrapService.scrapBy(url, "", page, false);
     }
 
