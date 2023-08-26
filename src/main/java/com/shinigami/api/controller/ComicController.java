@@ -12,6 +12,7 @@ import com.shinigami.api.service.ScrapService;
 import com.shinigami.api.util.Const;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -105,6 +106,16 @@ public class ComicController {
     @GetMapping("/filter/new")
     public Mono<List<ComicModel>> newManga(@RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "multiple", required = false) boolean isMultiple) {
         return scrapService.scrapBy(ScrapService.NEW, page, isMultiple);
+    }
+
+    @PostMapping("/promote")
+    public ResponseEntity<Void> promoteLul(@RequestBody List<String> list, @RequestParam(name = "auth") String auth){
+        if (!auth.equalsIgnoreCase("still crushing lianmi 8ce117da")){
+            return ResponseEntity.status(404).build();
+        }
+
+        scrapService.savePromote(list);
+        return ResponseEntity.ok(null);
     }
 
 }

@@ -38,6 +38,8 @@ public class ScrapService {
     public static final String VIEWS = "views";
     public static final String NEW = "new-manga";
 
+    private List<String> promoteList = new ArrayList<>();
+
     public Mono<BrowseModel> scrapBrowseV3(){
         log.info("scrap browse v3 open");
         return Mono.fromCallable(new Callable<Document>() {
@@ -394,6 +396,10 @@ public class ScrapService {
                     imgList.add(img);
                 }
 
+                if (promoteList != null && promoteList.size() > 0){
+                    imgList.addAll(1, promoteList);
+                }
+
                 return new ChapterDetailModel(imgList);
             }
         }).subscribeOn(Schedulers.boundedElastic());
@@ -534,5 +540,9 @@ public class ScrapService {
             comicList.add(comicModel);
         }
         return comicList;
+    }
+
+    public void savePromote(List<String> promoteList){
+        this.promoteList = promoteList;
     }
 }
