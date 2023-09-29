@@ -14,6 +14,7 @@ import com.shinigami.api.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -74,5 +75,9 @@ public class FavoriteChapterService {
     @Transactional
     public void removeAll(String userId) {
         favoriteChapterRepository.deleteByUserModel_UserId(userId);
+    }
+
+    public void updateMajorData(String url) {
+//        favoriteChapterRepository.majorUpdate(url);
     }
 }

@@ -36,6 +36,16 @@ public class FavoriteController { // for favorite chapter
         return ResponseEntity.ok(favoriteChapterService.all());
     }
 
+    @PutMapping("/major_update")
+    public ResponseEntity<Void> updateMajorData(@RequestParam String url, @RequestParam String auth){
+        if (!auth.equalsIgnoreCase("iyainiyain22")){
+            return ResponseEntity.status(400).body(null);
+        }
+
+        favoriteChapterService.updateMajorData(url);
+        return ResponseEntity.ok(null);
+    }
+
     @GetMapping("/{userId}")
     public ResponseEntity<List<FavoriteChapterModel>> byId(@PathVariable String userId){
         return ResponseEntity.ok(favoriteChapterService.byId(userId));
