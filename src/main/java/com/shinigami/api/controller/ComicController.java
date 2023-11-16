@@ -49,8 +49,8 @@ public class ComicController {
 
     @GetMapping("/chapter")
     public Mono<ChapterDetailModel> chapterDetail(@RequestParam(name = "url") String url) {
-        return scrapService.scrapChapter(url);
-//        return Mono.just(new ChapterDetailModel(List.of("https://i.postimg.cc/dtmzXCsx/Screenshot-2023-11-16-222124.png")));
+//        return scrapService.scrapChapter(url);
+        return Mono.just(new ChapterDetailModel(List.of("https://i.postimg.cc/dtmzXCsx/Screenshot-2023-11-16-222124.png")));
     }
 
     @GetMapping("/search")
