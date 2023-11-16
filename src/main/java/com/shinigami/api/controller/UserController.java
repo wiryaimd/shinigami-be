@@ -6,10 +6,7 @@
 
 package com.shinigami.api.controller;
 
-import com.shinigami.api.dto.HistoryComicDto;
-import com.shinigami.api.dto.HistoryDto;
-import com.shinigami.api.dto.PremiumDto;
-import com.shinigami.api.dto.UserDto;
+import com.shinigami.api.dto.*;
 import com.shinigami.api.exception.ElementNotFoundException;
 import com.shinigami.api.model.UserHistoryModel;
 import com.shinigami.api.model.UserModel;
@@ -41,7 +38,7 @@ public class UserController {
 
     @GetMapping("/premium/{email}")
     public ResponseEntity<Void> updateUser(@PathVariable String email, @RequestParam int day, @RequestParam("auth") String auth){
-        if (!auth.equals("smvk8ce117da")){
+        if (!auth.equals("afaiyhiyaindebanh")){
             return ResponseEntity.notFound().build();
         }
         userService.setPremium(email, day);

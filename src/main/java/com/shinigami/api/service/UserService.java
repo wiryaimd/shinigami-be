@@ -177,4 +177,14 @@ public class UserService {
     public List<UserModel> allUser(){
         return userRepository.findAll();
     }
+
+    public boolean validatePremium(String userId) {
+        UserModel userModel = userRepository.findByUserId(userId).orElse(null);
+
+        if(userModel == null){
+            return false;
+        }
+
+        return userModel.isPremium();
+    }
 }
