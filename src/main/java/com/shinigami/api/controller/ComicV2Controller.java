@@ -25,7 +25,7 @@ public class ComicV2Controller {
     private final UserService userService;
 
     @GetMapping("/chapter")
-    public Mono<ChapterDetailModel> chapterDetail(@RequestParam(name = "url") String url, @RequestParam(name = "id") String userId) {
+    public Mono<ChapterDetailModel> chapterDetail(@RequestParam(name = "url") String url, @RequestParam(name = "id", required = false) String userId) {
         if (userId != null && !userId.isEmpty()){
             return Mono.just(new ChapterDetailModel(List.of("https://i.postimg.cc/7h5pdtL1/Screenshot-2023-11-16-221837.png")));
         }
