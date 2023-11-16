@@ -26,18 +26,18 @@ public class ComicV2Controller {
 
     @GetMapping("/chapter")
     public Mono<ChapterDetailModel> chapterDetail(@RequestParam(name = "url") String url, @RequestParam(name = "id", required = false) String userId) {
-        if (userId != null && !userId.isEmpty()){
-            return Mono.just(new ChapterDetailModel(List.of("https://i.postimg.cc/7h5pdtL1/Screenshot-2023-11-16-221837.png")));
-        }
+//        if (userId != null && !userId.isEmpty()){
+//            return Mono.just(new ChapterDetailModel(List.of("https://i.postimg.cc/7h5pdtL1/Screenshot-2023-11-16-221837.png")));
+//        }
         return scrapService.scrapChapter(url);
     }
 
     @GetMapping("/chapter/premium")
     public Mono<ChapterDetailModel> chapterDetailPremiium(@RequestParam(name = "url") String url, @RequestParam(name = "id") String userId) {
-//        boolean isValid = userService.validatePremium(userId);
-//        if (!isValid){
-//            return Mono.just(new ChapterDetailModel(List.of("https://i.postimg.cc/7h5pdtL1/Screenshot-2023-11-16-221837.png")));
-//        }
+        boolean isValid = userService.validatePremium(userId);
+        if (!isValid){
+            return Mono.just(new ChapterDetailModel(List.of("https://i.postimg.cc/7h5pdtL1/Screenshot-2023-11-16-221837.png")));
+        }
 
         return scrapService.scrapChapter(url);
     }
