@@ -17,6 +17,7 @@ import com.shinigami.api.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.function.Supplier;
 @Service
 @AllArgsConstructor
 @Slf4j
+@Transactional
 public class UserService {
 
     private UserRepository userRepository;
