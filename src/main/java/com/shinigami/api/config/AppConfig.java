@@ -6,7 +6,7 @@
 
 package com.shinigami.api.config;
 
-import com.shinigami.api.filter.ChapterFilter;
+//import com.shinigami.api.filter.ChapterFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
