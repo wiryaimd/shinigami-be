@@ -25,12 +25,12 @@ public class ChapterFilter extends OncePerRequestFilter {
         log.info("info hooh " + key);
 
         if (key == null){
-            response.setStatus(200);
+            response.setStatus(401);
             return;
         }
 
         if (!key.equalsIgnoreCase("iyainiyainiyainde123")){
-            response.setStatus(200);
+            response.setStatus(401);
             return;
         }
 
