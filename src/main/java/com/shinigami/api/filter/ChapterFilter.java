@@ -15,25 +15,25 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-//@Slf4j
-//public class ChapterFilter extends OncePerRequestFilter {
-//
-//    @Override
-//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-//
-//        log.info("info min infokeun");
-//
-//        String key = request.getHeader("lulthings");
-//        if (key == null){
-//            response.setStatus(401);
-//            return;
-//        }
-//
-//        if (!key.equalsIgnoreCase("iyainiyainiyain123")){
-//            response.setStatus(401);
-//            return;
-//        }
-//
-//        filterChain.doFilter(request, response);
-//    }
-//}
+@Slf4j
+public class ChapterFilter extends OncePerRequestFilter {
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        log.info("info min");
+
+        String key = request.getHeader("lulthings");
+        if (key == null){
+            response.setStatus(401);
+            return;
+        }
+
+        if (!key.equalsIgnoreCase("iyainiyainiyainde123")){
+            response.setStatus(401);
+            return;
+        }
+
+        filterChain.doFilter(request, response);
+    }
+}

@@ -6,17 +6,25 @@
 
 package com.shinigami.api.service;
 
+import com.google.gson.Gson;
+import com.shinigami.api.dto.AesDto;
+import com.shinigami.api.dto.EncDto;
 import com.shinigami.api.dto.FilterDto;
 import com.shinigami.api.factory.ComicDetailFactory;
 import com.shinigami.api.factory.ComicFactory;
 import com.shinigami.api.model.*;
 import com.shinigami.api.util.Const;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
@@ -28,6 +36,7 @@ import java.util.concurrent.Callable;
 import java.util.function.*;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class ScrapService {
 
@@ -37,6 +46,9 @@ public class ScrapService {
     public static final String RATING = "rating";
     public static final String VIEWS = "views";
     public static final String NEW = "new-manga";
+
+    private final RestTemplate restTemplate;
+    private final Gson gson;
 
     private List<String> promoteList = new ArrayList<>();
 
@@ -379,30 +391,73 @@ public class ScrapService {
             @Override
             public Document call() throws Exception {
                 return Jsoup.connect(url)
+//                return Jsoup.connect("http://localhost:8085/sample1")
                         .userAgent("Mozilla/5.0")
+//                        .ignoreContentType(true)
                         .get();
             }
         }).map(new Function<Document, ChapterDetailModel>() {
             @Override
             public ChapterDetailModel apply(Document document) {
-                List<String> imgList = new ArrayList<>();
-                Elements imgElement = document.select("div.page-break img");
-                for(Element element : imgElement){
-                    String img = element.attr("abs:data-src");
-                    if (img.trim().isEmpty()){
-                        continue;
-                    }
-
-                    imgList.add(img);
+                Element element = document.selectFirst("script#chapter-data");
+                if (element == null){
+                    return new ChapterDetailModel(new ArrayList<>());
                 }
 
+                String parsed = element.html();
+
+                String p1 = "var chapter_data = '";
+                String p2 = "var post_id = '";
+
+                int indexDataF = parsed.indexOf(p1);
+                int indexDataE = parsed.indexOf("\"}'", indexDataF);
+                int indexPostF = parsed.indexOf(p2, indexDataE);
+                int indexPostE = parsed.indexOf("';", indexPostF);
+
+                String data = parsed.substring(indexDataF + p1.length(), indexDataE + 2);
+                String postId = parsed.substring(indexPostF + p2.length(), indexPostE);
+                EncDto encDto = gson.fromJson(data, EncDto.class);
+
+//                log.info("postId {}\n ct {}\niv {}\ns {}", postId, encDto.getCt(), encDto.getIv(), encDto.getS());
+//                HttpEntity<AesDto> aesBody = new HttpEntity<>(new AesDto(
+//                        Const.SAMPLE_PID,
+//                        Const.SAMPLE_CT,
+//                        Const.SAMPLE_IV,
+//                        Const.SAMPLE_S
+//                ));
+
+                HttpEntity<AesDto> aesBody = new HttpEntity<>(new AesDto(
+                        postId,
+                        encDto.getCt(),
+                        encDto.getIv(),
+                        encDto.getS()
+                ));
+
+                String[] res = restTemplate.postForObject("http://localhost:8085/decrypt", aesBody, String[].class);
+
+                if (res == null){
+                    return new ChapterDetailModel(new ArrayList<>());
+                }
+
+                List<String> imgList = new ArrayList<>(List.of(res));
+
+//                Elements imgElement = document.select("div.page-break img");
+//                for(Element element : imgElement){
+//                    String img = element.attr("abs:data-src");
+//                    if (img.trim().isEmpty()){
+//                        continue;
+//                    }
+//
+//                    imgList.add(img);
+//                }
+//
                 if (promoteList != null && promoteList.size() > 0){
                     imgList.addAll(1, promoteList);
                 }
 
                 return new ChapterDetailModel(imgList);
             }
-        }).subscribeOn(Schedulers.boundedElastic());
+        }).subscribeOn(Schedulers.boundedElastic()).onErrorReturn(new ChapterDetailModel(new ArrayList<>()));
     }
 
     public Mono<List<ComicModel>> scrapSearch(String keyword, int page) {
