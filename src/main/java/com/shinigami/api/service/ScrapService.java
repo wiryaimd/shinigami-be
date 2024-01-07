@@ -433,7 +433,7 @@ public class ScrapService {
                         encDto.getS()
                 ));
 
-                String[] res = restTemplate.postForObject("http://localhost:8085/decrypt", aesBody, String[].class);
+                String[] res = restTemplate.postForObject("http://127.0.0.1:8085/decrypt", aesBody, String[].class);
 
                 if (res == null){
                     return new ChapterDetailModel(new ArrayList<>());
