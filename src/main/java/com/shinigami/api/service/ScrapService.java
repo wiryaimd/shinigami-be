@@ -418,7 +418,7 @@ public class ScrapService {
                 String postId = parsed.substring(indexPostF + p2.length(), indexPostE);
                 EncDto encDto = gson.fromJson(data, EncDto.class);
 
-//                log.info("postId {}\n ct {}\niv {}\ns {}", postId, encDto.getCt(), encDto.getIv(), encDto.getS());
+                log.info("postId {}\n ct {}\niv {}\ns {}", postId, encDto.getCt(), encDto.getIv(), encDto.getS());
 //                HttpEntity<AesDto> aesBody = new HttpEntity<>(new AesDto(
 //                        Const.SAMPLE_PID,
 //                        Const.SAMPLE_CT,
@@ -433,7 +433,8 @@ public class ScrapService {
                         encDto.getS()
                 ));
 
-                String[] res = restTemplate.postForObject("http://127.0.0.1:8085/decrypt", aesBody, String[].class);
+                String[] res = restTemplate.postForObject("http://2066a4357aee:8085/decrypt", aesBody, String[].class);
+                log.info("decrypt cek: {}", (res == null));
 
                 if (res == null){
                     return new ChapterDetailModel(new ArrayList<>());
