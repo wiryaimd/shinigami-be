@@ -21,17 +21,15 @@ public class ChapterFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-
         String key = request.getHeader("lulthings");
-        log.info("info hooh " + key);
 
         if (key == null){
-            response.setStatus(401);
+            response.setStatus(200);
             return;
         }
 
         if (!key.equalsIgnoreCase("iyainiyainiyainde123")){
-            response.setStatus(401);
+            response.setStatus(200);
             return;
         }
 

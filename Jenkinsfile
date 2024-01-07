@@ -26,7 +26,7 @@ pipeline {
             steps{
                 sh 'docker stop shinigami-cicd1 || true' // berisi "|| true", persis seperti logical operator,
                 sh 'docker rm shinigami-cicd1 || true' // agar jika docker stop gagal maka akan execute || true dimana tetap ngeresponse status success (instead fail/false)
-                sh "docker run --name shinigami-cicd1 -p 8080:8080 --network shinigami1 -d wiryaimd/shinigami-cicd:${env.BUILD_NUMBER} --server.port=8080 --spring.datasource.url=jdbc:mysql://5650c48b8952:3306/db_shinigami_8ce117 --spring.datasource.password=8ce117da --logging.file.name=logs/shinigami_app.log --midtrans.secretkey=Mid-server-M0YlsNpDY_0fTcDjbrXuzu58 --spring.datasource.hikari.minimum-idle=20 --spring.datasource.hikari.maximum-pool-size=25 --spring.datasource.hikari.idle-timeout=200000 --spring.datasource.hikari.connection-timeout=250000"
+                sh "docker run --name shinigami-cicd1 -p 8080:8080 --network shinigami1 -d wiryaimd/shinigami-cicd:${env.BUILD_NUMBER} --server.port=8080 --spring.datasource.url=jdbc:mysql://5650c48b8952:3306/db_shinigami_8ce117 --spring.datasource.password=8ce117da --logging.file.name=logs/shinigami_app.log --midtrans.secretkey=Mid-server-M0YlsNpDY_0fTcDjbrXuzu58 --spring.datasource.hikari.minimum-idle=15 --spring.datasource.hikari.maximum-pool-size=20 --spring.datasource.hikari.idle-timeout=150000 --spring.datasource.hikari.connection-timeout=200000"
 
                 echo 'update success borr yahahah'
             }
