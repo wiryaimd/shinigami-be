@@ -22,6 +22,7 @@ public class ChapterFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String key = request.getHeader("lulthings");
+        log.info("info hooh " + key);
 
         if (key == null){
             response.setStatus(200);
