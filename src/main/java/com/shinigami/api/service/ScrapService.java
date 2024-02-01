@@ -418,7 +418,7 @@ public class ScrapService {
                 String postId = parsed.substring(indexPostF + p2.length(), indexPostE);
                 EncDto encDto = gson.fromJson(data, EncDto.class);
 
-                log.info("postId {}\n ct {}\niv {}\ns {}", postId, encDto.getCt(), encDto.getIv(), encDto.getS());
+//                log.info("postId {}\n ct {}\niv {}\ns {}", postId, encDto.getCt(), encDto.getIv(), encDto.getS());
 //                HttpEntity<AesDto> aesBody = new HttpEntity<>(new AesDto(
 //                        Const.SAMPLE_PID,
 //                        Const.SAMPLE_CT,
