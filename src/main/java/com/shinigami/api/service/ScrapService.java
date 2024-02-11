@@ -239,7 +239,7 @@ public class ScrapService {
                     factory.getCoverList().get(i),
                     chapter,
                     chapterUrl,
-                    factory.getRatingList().get(i)
+                    factory.getRatingList().size() != factory.getTitleList().size() ? 0 : factory.getRatingList().get(i)
             );
             comicList.add(comicModel);
         }
