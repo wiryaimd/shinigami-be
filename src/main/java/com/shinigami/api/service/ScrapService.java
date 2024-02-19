@@ -31,9 +31,11 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -465,7 +467,9 @@ public class ScrapService {
         return Mono.fromCallable(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
-                String url = String.format(Const.SCRAP_URL + "page/%d/?s=%s&post_type=wp-manga", page, keyword);
+                String cleaned = String.join("+", keyword.trim().split(" "));
+                log.info("user search {}", cleaned);
+                String url = String.format(Const.SCRAP_URL + "page/%d/?s=%s&post_type=wp-manga", page, cleaned);
 
                 return Jsoup.connect(url)
                         .userAgent("Mozilla/5.0")
@@ -484,10 +488,10 @@ public class ScrapService {
 
                 int minSize = Math.min(factory.getTitleList().size(), factory.getUrlList().size());
 
-                Elements ratingElement = document.select("span.score.total_votes");
-                for (Element element : ratingElement){
-                    factory.getRatingList().add(Float.parseFloat(element.text()));
-                }
+//                Elements ratingElement = document.select("span.score.total_votes");
+//                for (Element element : ratingElement){
+//                    factory.getRatingList().add(Float.parseFloat(element.text()));
+//                }
 
                 Elements imageElement = document.select("div.tab-thumb.c-image-hover img");
                 for(Element element : imageElement){
@@ -511,7 +515,8 @@ public class ScrapService {
                             factory.getCoverList().get(i),
                             factory.getChapterList().get(i),
                             factory.getChapterUrlList().get(i),
-                            factory.getRatingList().get(i)
+//                            factory.getRatingList().get(i)
+                            0
                     );
                     comicList.add(comicModel);
                 }
