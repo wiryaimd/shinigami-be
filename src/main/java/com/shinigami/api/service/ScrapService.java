@@ -349,7 +349,8 @@ public class ScrapService {
             synopsisSb.append(element.text()).append("\n\n");
         }
 
-        comicDetailFactory.getDetailList().add(new ComicDetailModel.Detail("rating_num", document.select("div.post-rating div.post-total-rating span.score").text()));
+//        comicDetailFactory.getDetailList().add(new ComicDetailModel.Detail("rating_num", document.select("div.post-rating div.post-total-rating span.score").text()));
+        comicDetailFactory.getDetailList().add(new ComicDetailModel.Detail("rating_num", "0"));
 
         Elements detailElement = document.select("div.post-content div.post-content_item");
         for (Element element : detailElement){
