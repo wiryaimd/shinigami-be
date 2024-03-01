@@ -471,7 +471,7 @@ public class ScrapService {
                 String cleaned = String.join("+", keyword.trim().split(" "));
                 log.info("user search {}", cleaned);
                 String url = String.format(Const.SCRAP_URL + "page/%d/?s=%s&post_type=wp-manga", page, cleaned);
-
+//                String url = "http://localhost:8085/search1";
                 return Jsoup.connect(url)
                         .userAgent("Mozilla/5.0")
                         .get();
@@ -523,6 +523,13 @@ public class ScrapService {
                 }
 
                 return comicList;
+            }
+        }).onErrorComplete(new Predicate<Throwable>() {
+            @Override
+            public boolean test(Throwable throwable) {
+                log.info("error mint");
+                throwable.printStackTrace();
+                return true;
             }
         }).onErrorReturn(List.of()).subscribeOn(Schedulers.boundedElastic());
     }
