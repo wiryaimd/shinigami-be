@@ -522,6 +522,8 @@ public class ScrapService {
                     comicList.add(comicModel);
                 }
 
+                log.info("search pass: {}", comicList.size());
+
                 return comicList;
             }
         }).onErrorComplete(new Predicate<Throwable>() {
