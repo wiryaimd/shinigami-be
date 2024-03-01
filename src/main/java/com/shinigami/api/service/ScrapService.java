@@ -526,14 +526,16 @@ public class ScrapService {
 
                 return comicList;
             }
-        }).onErrorComplete(new Predicate<Throwable>() {
-            @Override
-            public boolean test(Throwable throwable) {
-                log.info("error mint");
-                throwable.printStackTrace();
-                return true;
-            }
-        }).onErrorReturn(List.of()).subscribeOn(Schedulers.boundedElastic());
+        }
+//        ).onErrorComplete(new Predicate<Throwable>() {
+//            @Override
+//            public boolean test(Throwable throwable) {
+//                log.info("error mint");
+//                throwable.printStackTrace();
+//                return true;
+//            }
+//        }
+        ).onErrorReturn(List.of()).subscribeOn(Schedulers.boundedElastic());
     }
 
     public Mono<List<ComicModel>> scrapFilter(FilterDto filterDto, int page){
