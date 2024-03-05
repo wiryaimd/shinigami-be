@@ -1,3 +1,7 @@
+/*
+ * Developed by Wiryaimd
+ */
+
 package com.shinigami.api.util;
 
 public class Const {
