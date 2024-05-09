@@ -1,5 +1,5 @@
 /*
- * Developed by Wiryaimd
+ * Developed by Wiryaimds
  */
 
 package com.shinigami.api.util;
