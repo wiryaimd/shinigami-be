@@ -436,7 +436,7 @@ public class ScrapService {
                         encDto.getS()
                 ));
 
-                String[] res = restTemplate.postForObject("http://2066a4357aee:8085/decrypt", aesBody, String[].class);
+                String[] res = restTemplate.postForObject("http://aef439dacd02:8085/decrypt", aesBody, String[].class);
                 log.info("decrypt cek: {}", (res == null));
 
                 if (res == null){
