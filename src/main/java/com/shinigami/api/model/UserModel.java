@@ -33,10 +33,10 @@ public class UserModel {
     // val: 30, 90, 180, 360 (day)
     private int premiumDay = -1;
 
-    @OneToMany(mappedBy = "userModel")
+    @OneToMany(mappedBy = "userModel", fetch = FetchType.EAGER)
     private List<FavoriteComicModel> favoriteComicList;
 
-    @OneToMany(mappedBy = "userModel")
+    @OneToMany(mappedBy = "userModel", fetch = FetchType.EAGER)
     private List<FavoriteChapterModel> favoriteChapterList;
 
     @OneToMany(mappedBy = "userModel")
