@@ -16,6 +16,8 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class AppConfig {
 
+    public static String currentDomain = "shinigami06.com";
+
     @Bean
     public FilterRegistrationBean<ChapterFilter> chapterFilter(){
         FilterRegistrationBean<ChapterFilter> filter = new FilterRegistrationBean<>();
