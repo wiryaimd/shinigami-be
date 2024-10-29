@@ -59,7 +59,7 @@ public class ScrapService {
         return Mono.fromCallable(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
-                return Jsoup.connect(Const.SCRAP_URL)
+                return Jsoup.connect("https://" + Const.currentDomain + "/")
                         .userAgent("Mozilla/5.0")
                         .get();
             }
@@ -149,7 +149,7 @@ public class ScrapService {
     }
 
     public Mono<List<ComicModel>> scrapBy(String by, int page, boolean isMultiple) {
-        String url = String.format(Const.SCRAP_URL + "semua-series/page/%d/?m_orderby=%s", page, by);
+        String url = String.format("https://" + Const.currentDomain + "/semua-series/page/%d/?m_orderby=%s", page, by);
         return scrapBy(url, by, page, isMultiple);
     }
 
@@ -162,7 +162,7 @@ public class ScrapService {
                         .get();
 
                 if (isMultiple){
-                    String urlPage2 = String.format(Const.SCRAP_URL + "semua-series/page/%d/?m_orderby=%s", page + 1, by);
+                    String urlPage2 = String.format("https://" + Const.currentDomain + "/semua-series/page/%d/?m_orderby=%s", page + 1, by);
 
                     Document docPage2 = Jsoup.connect(urlPage2)
                             .userAgent("Mozilla/5.0")
@@ -470,7 +470,7 @@ public class ScrapService {
             public Document call() throws Exception {
                 String cleaned = String.join("+", keyword.trim().split(" "));
                 log.info("user search {}", cleaned);
-                String url = String.format(Const.SCRAP_URL + "page/%d/?s=%s&post_type=wp-manga", page, cleaned);
+                String url = String.format("https://" + Const.currentDomain + "/page/%d/?s=%s&post_type=wp-manga", page, cleaned);
 //                String url = "http://localhost:8085/search1";
                 return Jsoup.connect(url)
                         .userAgent("Mozilla/5.0")
@@ -542,8 +542,8 @@ public class ScrapService {
          return Mono.fromCallable(new Callable<Tuple2<Document, Document>>() {
              @Override
              public Tuple2<Document, Document> call() throws Exception {
-                 String urlPage1 = String.format(Const.SCRAP_URL + "genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page, filterDto.getSortBy());
-                 String urlPage2 = String.format(Const.SCRAP_URL + "genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page + 1, filterDto.getSortBy());
+                 String urlPage1 = String.format("https://" + Const.currentDomain + "/genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page, filterDto.getSortBy());
+                 String urlPage2 = String.format("https://" + Const.currentDomain + "/genre/%s/page/%d/?m_orderby=%s", filterDto.getGenre(), page + 1, filterDto.getSortBy());
 
                  Document docPage1 = Jsoup.connect(urlPage1)
                          .userAgent("Mozilla/5.0")
