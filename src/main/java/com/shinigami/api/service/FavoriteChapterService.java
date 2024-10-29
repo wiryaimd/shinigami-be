@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -52,26 +53,30 @@ public class FavoriteChapterService {
 
     public List<FavoriteChapterModel> byId(String userId) {
         UserModel userModel = userRepository.findByUserId(userId).orElse(null);
-        if (userModel == null){
+        if (userModel == null) {
             return List.of();
         }
 
-        List<FavoriteChapterModel> favoriteChapterList = userModel.getFavoriteChapterList();
-        favoriteChapterList.forEach(chapter -> {
-            String url = chapter.getUrl();
-            if (url != null && !url.contains(Const.currentDomain)) {
-                String newUrl = url.replaceFirst("https?://[^/]+/", "https://" + Const.currentDomain + "/");
-                chapter.setUrl(newUrl);
-            }
+        List<FavoriteChapterModel> favoriteChapterList = userModel.getFavoriteChapterList().stream()
+                .map(chapter -> {
+                    
+                    FavoriteChapterModel newChapter = new FavoriteChapterModel();
+                    newChapter.setId(chapter.getId());
+                    newChapter.setTitle(chapter.getTitle());
+                    newChapter.setUrl(updateUrlIfNeeded(chapter.getUrl()));
+                    newChapter.setCover(updateUrlIfNeeded(chapter.getCover()));
+                    return newChapter;
+                })
+                .collect(Collectors.toList());
 
-            String cover = chapter.getCover();
-            if (cover != null && !cover.contains(Const.currentDomain)) {
-                String newCover = cover.replaceFirst("https?://[^/]+/", "https://" + Const.currentDomain + "/");
-                chapter.setCover(newCover);
-            }
-        });
-        
         return favoriteChapterList;
+    }
+
+    private String updateUrlIfNeeded(String url) {
+        if (url != null && !url.contains(Const.CURRENT_DOMAIN)) {
+            return url.replaceFirst("https?://[^/]+/", "https://" + Const.CURRENT_DOMAIN + "/");
+        }
+        return url;
     }
 
     public void remove(String userId, String comicUrl) {
