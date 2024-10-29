@@ -6,7 +6,7 @@
 
 package com.shinigami.api.service;
 
-import com.shinigami.api.config.AppConfig;
+import com.shinigami.api.util.Const;
 import com.shinigami.api.dto.HistoryComicDto;
 import com.shinigami.api.dto.HistoryDto;
 import com.shinigami.api.dto.UserDto;
@@ -180,14 +180,14 @@ public class UserService {
          List<UserHistoryModel> HistoryChapterList = userHistoryRepository.findAllByUserModel_UserId(userId).orElse(new ArrayList<>());
          HistoryChapterList.forEach(history -> {
             String url = history.getComicUrl();
-            if (url != null && !url.contains(AppConfig.currentDomain)) {
-                String newUrl = url.replaceFirst("https?://[^/]+/", "https://" + AppConfig.currentDomain + "/");
+            if (url != null && !url.contains(Const.currentDomain)) {
+                String newUrl = url.replaceFirst("https?://[^/]+/", "https://" + Const.currentDomain + "/");
                 history.setComicUrl(newUrl);
             }
 
             String chapterUrl = history.getChapterUrl();
-            if (chapterUrl != null && !chapterUrl.contains(AppConfig.currentDomain)) {
-                String newchapterUrl = chapterUrl.replaceFirst("https?://[^/]+/", "https://" + AppConfig.currentDomain + "/");
+            if (chapterUrl != null && !chapterUrl.contains(Const.currentDomain)) {
+                String newchapterUrl = chapterUrl.replaceFirst("https?://[^/]+/", "https://" + Const.currentDomain + "/");
                 history.setChapterUrl(newchapterUrl);
             }
         });

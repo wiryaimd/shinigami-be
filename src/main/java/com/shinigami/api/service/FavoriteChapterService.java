@@ -6,7 +6,7 @@
 
 package com.shinigami.api.service;
 
-import com.shinigami.api.config.AppConfig;
+import com.shinigami.api.util.Const;
 import com.shinigami.api.dto.FavoriteChapterDto;
 import com.shinigami.api.model.UserModel;
 import com.shinigami.api.model.FavoriteChapterModel;
@@ -59,14 +59,14 @@ public class FavoriteChapterService {
         List<FavoriteChapterModel> favoriteChapterList = userModel.getFavoriteChapterList();
         favoriteChapterList.forEach(chapter -> {
             String url = chapter.getUrl();
-            if (url != null && !url.contains(AppConfig.currentDomain)) {
-                String newUrl = url.replaceFirst("https?://[^/]+/", "https://" + AppConfig.currentDomain + "/");
+            if (url != null && !url.contains(Const.currentDomain)) {
+                String newUrl = url.replaceFirst("https?://[^/]+/", "https://" + Const.currentDomain + "/");
                 chapter.setUrl(newUrl);
             }
 
             String cover = chapter.getCover();
-            if (cover != null && !cover.contains(AppConfig.currentDomain)) {
-                String newCover = cover.replaceFirst("https?://[^/]+/", "https://" + AppConfig.currentDomain + "/");
+            if (cover != null && !cover.contains(Const.currentDomain)) {
+                String newCover = cover.replaceFirst("https?://[^/]+/", "https://" + Const.currentDomain + "/");
                 chapter.setCover(newCover);
             }
         });
