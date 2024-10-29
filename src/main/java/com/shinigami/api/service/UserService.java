@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -174,25 +175,29 @@ public class UserService {
     }
 
     public List<UserHistoryModel> historyUser(String userId) {
-//        log.info("history----");
-        //return userHistoryRepository.findAllByUserModel_UserId(userId).orElse(new ArrayList<>());
+       
+        List<UserHistoryModel> historyChapterList = userHistoryRepository.findAllByUserModel_UserId(userId)
+                .orElse(new ArrayList<>());
+                
+        List<UserHistoryModel> modifiedHistoryList = historyChapterList.stream()
+                .map(history -> {
+                    UserHistoryModel newHistory = new UserHistoryModel();
+                    newHistory.setId(history.getId());
+                    newHistory.setChapterTitle(history.getChapterTitle());
+                    newHistory.setComicUrl(updateUrlIfNeeded(history.getComicUrl()));
+                    newHistory.setChapterUrl(updateUrlIfNeeded(history.getChapterUrl()));
+                    return newHistory;
+                })
+                .collect(Collectors.toList());
 
-         List<UserHistoryModel> HistoryChapterList = userHistoryRepository.findAllByUserModel_UserId(userId).orElse(new ArrayList<>());
-         HistoryChapterList.forEach(history -> {
-            String url = history.getComicUrl();
-            if (url != null && !url.contains(Const.currentDomain)) {
-                String newUrl = url.replaceFirst("https?://[^/]+/", "https://" + Const.currentDomain + "/");
-                history.setComicUrl(newUrl);
-            }
-
-            String chapterUrl = history.getChapterUrl();
-            if (chapterUrl != null && !chapterUrl.contains(Const.currentDomain)) {
-                String newchapterUrl = chapterUrl.replaceFirst("https?://[^/]+/", "https://" + Const.currentDomain + "/");
-                history.setChapterUrl(newchapterUrl);
-            }
-        });
-
-        return HistoryChapterList;
+        return modifiedHistoryList;
+    }
+    
+    private String updateUrlIfNeeded(String url) {
+        if (url != null && !url.contains(Const.CURRENT_DOMAIN)) {
+            return url.replaceFirst("https?://[^/]+/", "https://" + Const.CURRENT_DOMAIN + "/");
+        }
+        return url;
     }
 
     public List<UserModel> allUser(){
