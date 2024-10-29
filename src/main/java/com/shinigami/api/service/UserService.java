@@ -6,10 +6,12 @@
 
 package com.shinigami.api.service;
 
+import com.shinigami.api.config.AppConfig;
 import com.shinigami.api.dto.HistoryComicDto;
 import com.shinigami.api.dto.HistoryDto;
 import com.shinigami.api.dto.UserDto;
 import com.shinigami.api.exception.ElementNotFoundException;
+import com.shinigami.api.model.FavoriteChapterModel;
 import com.shinigami.api.model.UserHistoryModel;
 import com.shinigami.api.model.UserModel;
 import com.shinigami.api.repositories.UserHistoryRepository;
@@ -29,7 +31,7 @@ import java.util.function.Supplier;
 @AllArgsConstructor
 @Slf4j
 @Transactional
-public class UserService {
+public class UserService { 
 
     private UserRepository userRepository;
     private UserHistoryRepository userHistoryRepository;
@@ -173,7 +175,24 @@ public class UserService {
 
     public List<UserHistoryModel> historyUser(String userId) {
 //        log.info("history----");
-        return userHistoryRepository.findAllByUserModel_UserId(userId).orElse(new ArrayList<>());
+        //return userHistoryRepository.findAllByUserModel_UserId(userId).orElse(new ArrayList<>());
+
+         List<UserHistoryModel> HistoryChapterList = userHistoryRepository.findAllByUserModel_UserId(userId).orElse(new ArrayList<>());
+         HistoryChapterList.forEach(history -> {
+            String url = history.getComicUrl();
+            if (url != null && !url.contains(AppConfig.currentDomain)) {
+                String newUrl = url.replaceFirst("https?://[^/]+/", "https://" + AppConfig.currentDomain + "/");
+                history.setComicUrl(newUrl);
+            }
+
+            String chapterUrl = history.getChapterUrl();
+            if (chapterUrl != null && !chapterUrl.contains(AppConfig.currentDomain)) {
+                String newchapterUrl = chapterUrl.replaceFirst("https?://[^/]+/", "https://" + AppConfig.currentDomain + "/");
+                history.setChapterUrl(newchapterUrl);
+            }
+        });
+
+        return HistoryChapterList;
     }
 
     public List<UserModel> allUser(){

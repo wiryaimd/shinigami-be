@@ -6,6 +6,7 @@
 
 package com.shinigami.api.service;
 
+import com.shinigami.api.config.AppConfig;
 import com.shinigami.api.dto.FavoriteChapterDto;
 import com.shinigami.api.model.UserModel;
 import com.shinigami.api.model.FavoriteChapterModel;
@@ -54,7 +55,23 @@ public class FavoriteChapterService {
         if (userModel == null){
             return List.of();
         }
-        return userModel.getFavoriteChapterList();
+
+        List<FavoriteChapterModel> favoriteChapterList = userModel.getFavoriteChapterList();
+        favoriteChapterList.forEach(chapter -> {
+            String url = chapter.getUrl();
+            if (url != null && !url.contains(AppConfig.currentDomain)) {
+                String newUrl = url.replaceFirst("https?://[^/]+/", "https://" + AppConfig.currentDomain + "/");
+                chapter.setUrl(newUrl);
+            }
+
+            String cover = chapter.getCover();
+            if (cover != null && !cover.contains(AppConfig.currentDomain)) {
+                String newCover = cover.replaceFirst("https?://[^/]+/", "https://" + AppConfig.currentDomain + "/");
+                chapter.setCover(newCover);
+            }
+        });
+        
+        return favoriteChapterList;
     }
 
     public void remove(String userId, String comicUrl) {
