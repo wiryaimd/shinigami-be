@@ -63,6 +63,7 @@ public class FavoriteChapterService {
                     FavoriteChapterModel newChapter = new FavoriteChapterModel();
                     newChapter.setId(chapter.getId());
                     newChapter.setTitle(chapter.getTitle());
+                    newChapter.setChapter(chapter.getChapter());
                     newChapter.setUrl(updateUrlIfNeeded(chapter.getUrl()));
                     newChapter.setCover(updateUrlIfNeeded(chapter.getCover()));
                     return newChapter;
