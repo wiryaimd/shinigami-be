@@ -63,13 +63,13 @@ public class ComicController {
 
     @GetMapping("/projects")
     public Mono<List<ComicModel>> projects(@RequestParam(name = "page", defaultValue = "1") int page) {
-        String url = String.format("https://" + Const.currentDomain + "/project/page/%d", page);
+        String url = String.format("https://" + Const.CURRENT_DOMAIN + "/project/page/%d", page);
         return scrapService.scrapBy(url, "", page, false);
     }
 
     @GetMapping("/mirror")
     public Mono<List<ComicModel>> mirror(@RequestParam(name = "page", defaultValue = "1") int page) {
-        String url = String.format("https://" + Const.currentDomain + "/mirror/page/%d", page);
+        String url = String.format("https://" + Const.CURRENT_DOMAIN + "/mirror/page/%d", page);
         return scrapService.scrapBy(url, "", page, false);
     }
 
